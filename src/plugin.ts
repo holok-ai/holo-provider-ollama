@@ -4,43 +4,45 @@
  * Implements IProviderPlugin contract for Ollama API
  */
 
-import type { IProviderPlugin, PluginContext, PluginManifest } from '@holokai/sdk/plugin';
+import {BasePlugin, IProviderPlugin, PluginContext} from '@holokai/sdk/plugin';
+import {manifest} from "./manifest.js";
+import {ProviderCapabilities, ProviderConfig} from "@holokai/sdk/provider";
 
-export class OllamaProviderPlugin implements IProviderPlugin {
-  manifest: PluginManifest = {
-    name: '@holokai/provider-ollama',
-    version: '0.1.0',
-    pluginType: 'provider',
-    providerType: 'ollama',
-    sdkVersion: 'ollama@0.6.3',
-    commonSdkVersion: '^0.1.0',
-    author: 'Holokai Team',
-    source: 'official',
-    description: 'Ollama provider plugin for local models'
-  };
+export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin {
+    createProvider(_config: ProviderConfig): Promise<unknown> {
+        throw new Error("Method not implemented.");
+    }
 
-  async initialize(context: PluginContext): Promise<void> {
-    // TODO: Implement initialization
-    throw new Error('Not implemented');
-  }
+    getCapabilities(): ProviderCapabilities {
+        return {
+            streaming: true,
+            tools: false,
+            vision: false,
+            functionCalling: false,
+            maxTokens: 128000
+        };
+    }
 
-  async destroy(): Promise<void> {
-    // TODO: Implement cleanup
-    throw new Error('Not implemented');
-  }
+    getSupportedModels(): string[] {
+        return [
+            'llama2',
+            'llama3',
+            'mistral',
+            'mixtral',
+            'codellama',
+            'phi',
+            'gemma'
+        ];
+    }
 
-  createProvider(config: any): any {
-    // TODO: Implement provider creation
-    throw new Error('Not implemented');
-  }
+    manifest = manifest;
 
-  validateConfig(config: unknown): boolean {
-    // TODO: Implement config validation
-    throw new Error('Not implemented');
-  }
+    protected onInitialize(_context: PluginContext): Promise<void> {
+        return Promise.resolve();
+    }
 
-  getCapabilities(): any {
-    // TODO: Implement capabilities reporting
-    throw new Error('Not implemented');
-  }
+    protected onDestroy(): Promise<void> {
+        return Promise.resolve();
+    }
+
 }
