@@ -7,10 +7,19 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "lib": ["ESNext", "ESNext.Intl"]
+    "lib": [
+      "ESNext",
+      "ESNext.Intl"
+    ]
   },
-  "include": ["src/**/*"],
-  "exclude": ["**/*.test.ts", "**/*.spec.ts", "tests/**/*"],
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "tests/**/*"
+  ],
   "references": [
     {
       "path": "../sdk"
