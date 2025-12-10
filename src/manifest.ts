@@ -5,7 +5,7 @@ export const manifest: PluginManifest = {
     name: '@holokai/provider-ollama',
     version: '1.0.0',
     pluginType: 'provider',
-    displayName: 'Ollama Provider',
+    displayName: 'Ollama',
     description: 'First-party Ollama provider plugin for Holokai, providing local LLM support via the Holo universal format.',
 
     // Optional metadata

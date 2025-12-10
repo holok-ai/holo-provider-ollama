@@ -9,6 +9,8 @@ import {manifest} from "./manifest.js";
 import {ProviderCapabilities, ProviderConfig} from "@holokai/sdk/provider";
 
 export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin {
+    manifest = manifest;
+
     createProvider(_config: ProviderConfig): Promise<unknown> {
         throw new Error("Method not implemented.");
     }
@@ -34,8 +36,6 @@ export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin 
             'gemma'
         ];
     }
-
-    manifest = manifest;
 
     protected onInitialize(_context: PluginContext): Promise<void> {
         return Promise.resolve();
