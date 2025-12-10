@@ -10,7 +10,8 @@ npm install @holokai/provider-ollama
 
 ## Usage
 
-This plugin is automatically discovered and loaded by the Holo plugin system when installed in a Holo worker environment.
+This plugin is automatically discovered and loaded by the Holo plugin system when installed in a Holo worker
+environment.
 
 ## Provider Configuration
 

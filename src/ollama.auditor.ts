@@ -50,24 +50,6 @@ export class OllamaAuditor extends BaseAuditor {
         }
     }
 
-    private extractUserPromptFromMessages(messages?: any[]): string | undefined {
-        if (!messages || !Array.isArray(messages)) return undefined;
-
-        const userMessages = messages.filter(msg => msg.role === 'user');
-        if (userMessages.length === 0) return undefined;
-
-        // Return the last user message content
-        const lastUserMessage = userMessages[userMessages.length - 1];
-        return typeof lastUserMessage.content === 'string' ? lastUserMessage.content : undefined;
-    }
-
-    private extractSystemPromptFromMessages(messages?: any[]): string | undefined {
-        if (!messages || !Array.isArray(messages)) return undefined;
-
-        const systemMessage = messages.find(msg => msg.role === 'system');
-        return systemMessage && typeof systemMessage.content === 'string' ? systemMessage.content : undefined;
-    }
-
     protected mapResponseToHolo(
         workerResponse: LLMWorkerResponse,
         llmResponse: Omit<LlmResponse, 'id'>
@@ -131,6 +113,24 @@ export class OllamaAuditor extends BaseAuditor {
         } else {
             llmResponse.status = LlmStatus.PARTIAL;
         }
+    }
+
+    private extractUserPromptFromMessages(messages?: any[]): string | undefined {
+        if (!messages || !Array.isArray(messages)) return undefined;
+
+        const userMessages = messages.filter(msg => msg.role === 'user');
+        if (userMessages.length === 0) return undefined;
+
+        // Return the last user message content
+        const lastUserMessage = userMessages[userMessages.length - 1];
+        return typeof lastUserMessage.content === 'string' ? lastUserMessage.content : undefined;
+    }
+
+    private extractSystemPromptFromMessages(messages?: any[]): string | undefined {
+        if (!messages || !Array.isArray(messages)) return undefined;
+
+        const systemMessage = messages.find(msg => msg.role === 'system');
+        return systemMessage && typeof systemMessage.content === 'string' ? systemMessage.content : undefined;
     }
 
     /**
