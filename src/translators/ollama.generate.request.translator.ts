@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import {OllamaGenerateRequest, OllamaGenerateRequestDefaults} from "../types";
 import {injectable} from 'tsyringe';
-import {HoloMessage, HoloRequest, HoloRequestDefaults, isImage, isText, pickDefined} from "@holokai/sdk";
+import {HoloMessage, HoloRequest, HoloRequestDefaults, isImageContent, isTextContent, pickDefined} from "@holokai/sdk";
 import {BaseTranslator} from "@holokai/sdk/provider";
 
 @injectable()
@@ -85,8 +85,8 @@ export class OllamaGenerateRequestTranslator extends BaseTranslator<HoloRequest,
         }
 
         const parts = msg.content; // HoloContent[]
-        const prompt = parts.filter(isText).map(p => p.text).join("\n") || undefined;
-        const imagesArr = parts.filter(isImage).map(p => p.url);
+        const prompt = parts.filter(isTextContent).map(p => p.text).join("\n") || undefined;
+        const imagesArr = parts.filter(isImageContent).map(p => p.url);
         const images = imagesArr.length ? imagesArr : undefined;
 
         return pickDefined({prompt, images});

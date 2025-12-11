@@ -5,8 +5,8 @@ import {
     LlmRequest,
     LlmResponse,
     LlmStatus,
-    LLMWorkerRequest,
-    LLMWorkerResponse,
+    HoloWorkerRequest,
+    HoloWorkerResponse,
     RequestType
 } from "@holokai/sdk";
 
@@ -14,7 +14,7 @@ import {
 export class OllamaAuditor extends BaseAuditor {
     readonly provider = 'ollama';
 
-    protected toHoloRequest(workerRequest: LLMWorkerRequest, llmRequest: Omit<LlmRequest, 'id'>): void {
+    protected toHoloRequest(workerRequest: HoloWorkerRequest, llmRequest: Omit<LlmRequest, 'id'>): void {
         const payload = workerRequest.payload as OllamaChatRequest | OllamaGenerateRequest;
 
         // Set model
@@ -42,7 +42,7 @@ export class OllamaAuditor extends BaseAuditor {
         }
     }
 
-    protected mapProviderPayload(workerRequest: LLMWorkerRequest, llmRequest: Omit<LlmRequest, 'id'>): void {
+    protected mapProviderPayload(workerRequest: HoloWorkerRequest, llmRequest: Omit<LlmRequest, 'id'>): void {
         const payload = workerRequest.payload as OllamaChatRequest | OllamaGenerateRequest;
         // Set options
         if (payload.options !== undefined) {
@@ -51,7 +51,7 @@ export class OllamaAuditor extends BaseAuditor {
     }
 
     protected mapResponseToHolo(
-        workerResponse: LLMWorkerResponse,
+        workerResponse: HoloWorkerResponse,
         llmResponse: Omit<LlmResponse, 'id'>
     ): void {
         const payload = workerResponse.payload;
@@ -72,7 +72,7 @@ export class OllamaAuditor extends BaseAuditor {
     }
 
     protected collectResponseMetrics(
-        workerResponse: LLMWorkerResponse,
+        workerResponse: HoloWorkerResponse,
         llmResponse: Omit<LlmResponse, 'id'>
     ): void {
         const payload = workerResponse.payload;

@@ -1,13 +1,13 @@
 import 'reflect-metadata';
 import {injectable} from 'tsyringe';
 import {OllamaChatResponse, OllamaGenerateResponse} from '../../types';
-import {BaseStreamTranslator} from "@holokai/sdk/provider";
+import {StreamTranslator} from "@holokai/sdk/provider";
 import {HoloStreamChunk, pickDefined} from "@holokai/sdk";
 
 type OllamaStreamResponse = Partial<OllamaChatResponse> | Partial<OllamaGenerateResponse>;
 
 @injectable()
-export class OllamaContentDeltaTranslator extends BaseStreamTranslator<HoloStreamChunk, OllamaStreamResponse> {
+export class OllamaContentDeltaTranslator extends StreamTranslator<HoloStreamChunk, OllamaStreamResponse> {
     protected holoDefaults: Partial<HoloStreamChunk> = {};
     protected providerDefaults: Partial<OllamaStreamResponse> = {};
 

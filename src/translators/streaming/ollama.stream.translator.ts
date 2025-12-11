@@ -4,14 +4,14 @@ import {OllamaChatResponse, OllamaGenerateResponse} from '../../types';
 import {OllamaContentDeltaTranslator} from './ollama.content.delta.translator';
 import {OllamaMessageDeltaTranslator} from './ollama.message.delta.translator';
 import {OllamaMessageStopTranslator} from './ollama.message.stop.translator';
-import {BaseStreamTranslator} from "@holokai/sdk/provider";
+import {StreamTranslator} from "@holokai/sdk/provider";
 import {HoloStreamChunk} from "@holokai/sdk";
 
 // Union type for Ollama streaming responses (partials with done flag)
 type OllamaStreamResponse = Partial<OllamaChatResponse> | Partial<OllamaGenerateResponse>;
 
 @injectable()
-export class OllamaStreamTranslator extends BaseStreamTranslator<HoloStreamChunk, OllamaStreamResponse> {
+export class OllamaStreamTranslator extends StreamTranslator<HoloStreamChunk, OllamaStreamResponse> {
     protected holoDefaults: Partial<HoloStreamChunk> = {};
     protected providerDefaults: Partial<OllamaStreamResponse> = {};
 
