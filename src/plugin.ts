@@ -6,13 +6,14 @@
 
 import {BasePlugin, IProviderPlugin, PluginContext} from '@holokai/sdk/plugin';
 import {manifest} from "./manifest.js";
-import {ProviderCapabilities, ProviderConfig} from "@holokai/sdk/provider";
+import {IProvider, ProviderCapabilities} from "@holokai/sdk/provider";
+import {OllamaProvider} from "./ollama.provider";
 
 export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin {
     manifest = manifest;
 
-    createProvider(_config: ProviderConfig): Promise<unknown> {
-        throw new Error("Method not implemented.");
+    async createProvider(config: any): Promise<IProvider> {
+        return new OllamaProvider(config);
     }
 
     getCapabilities(): ProviderCapabilities {
