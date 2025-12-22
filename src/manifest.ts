@@ -3,6 +3,7 @@ import {PluginManifest} from "@holokai/sdk";
 export const manifest: PluginManifest = {
     // Required identity
     name: '@holokai/provider-ollama',
+    family: 'ollama',
     version: '1.0.0',
     pluginType: 'provider',
     displayName: 'Ollama',
