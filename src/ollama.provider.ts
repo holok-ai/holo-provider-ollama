@@ -1,10 +1,15 @@
-import {ChatResponse, GenerateResponse, Ollama} from "ollama";
-import {BaseProvider, ModelInfo, RequestType} from "@holokai/sdk";
+import {ChatRequest, GenerateRequest, Ollama} from "ollama";
+import {BaseProvider, ModelInfo, ProviderContext, RequestType, RunHandle} from "@holokai/sdk";
 
 export class OllamaProvider extends BaseProvider {
-    protected client: Ollama = new Ollama();
+    protected readonly client: Ollama;
 
-    async init(): Promise<void> {
+    constructor(
+        public readonly name: string,
+        public readonly family: string,
+        public readonly version: string,
+        protected readonly _config: any) {
+        super(name, family, version, _config);
         this.client = new Ollama(this._config);
     }
 
@@ -14,10 +19,6 @@ export class OllamaProvider extends BaseProvider {
     async getModels(): Promise<ModelInfo[]> {
         const logger = this.mlog(this.getModels);
         try {
-            if (!this.client) {
-                await this.init();
-            }
-
             const response = await this.client.list();
             const modelList = response.models.map(model => ({
                 id: model.name,
@@ -40,77 +41,65 @@ export class OllamaProvider extends BaseProvider {
         }
     }
 
-    async handleRequest(request: any, type: RequestType): Promise<void> {
-        if (type === RequestType.GENERATE) {
-            return await this.ollamaGenerate(request);
-        } else if (type === RequestType.CHAT) {
-            return await this.ollamaChat(request);
+    protected async handleRequest(payload: any, ctx: ProviderContext): Promise<RunHandle<any>> {
+        if (ctx.requestType === RequestType.GENERATE) {
+            return this.ollamaGenerate(payload, ctx);
         }
+        if (ctx.requestType === RequestType.CHAT) {
+            return this.ollamaChat(payload, ctx);
+        }
+        throw new Error(`Unsupported requestType: ${ctx.requestType}`);
     }
 
-    private async ollamaGenerate(request: any): Promise<void> {
-        // const logger = this.mlog(this.ollamaGenerate);
-        let fullResponse = '';
-
-        const response = await this.client.generate(request);
-
-        if (request.stream) {
-            try {
-                // Use Ollama streaming API
-                for await (const chunk of response) {
-                    if (chunk.done) {
-                        this.done(chunk, fullResponse);
-                        break;
-                    }
-
-                    const token = chunk.response;
-                    fullResponse += token;
-
-                    if (token) {
-                        this.data(token);
-                    }
-                }
-            } catch (error) {
-                this.error(response);
-                throw error;
-            }
-        } else {
-            fullResponse = (response as unknown as GenerateResponse).response;
-            this.done(fullResponse);
+    private async ollamaGenerate(request: GenerateRequest, ctx: ProviderContext): Promise<RunHandle<any>> {
+        if (!request.stream) {
+            return {
+                final: async () => {
+                    return await this.client.generate({...request, stream: false /* ensure */});
+                },
+            };
         }
+
+        const finalPromise = (async () => {
+            const streamResp = await this.client.generate({...request, stream: true});
+
+            for await (const chunk of streamResp) {
+                const token = chunk?.response ?? "";
+                if (token) ctx.emitTextDelta(token);
+
+                if (chunk?.done) return chunk;   // authoritative completion value
+            }
+
+            // If Ollama ends without a done flag
+            return {done: true};
+        })();
+
+        return {final: () => finalPromise};
     }
 
-    private async ollamaChat(request: any): Promise<void> {
-        // const logger = this.mlog(this.ollamaChat);
-
-        let fullResponse = '';
-        // Pass the request directly to the client since it extends request
-        // @ts-ignore
-        const response = await this.client.chat(request);
-
-        if (request.stream) {
-            try {
-                for await (const chunk of response) {
-                    // TODO: Simplify stream completion logic - consider extracting to a shared method
-                    // The chunk.done pattern is repeated across generate and chat methods
-                    if (chunk.done) {
-                        this.done(chunk, fullResponse);
-                        break;
-                    }
-
-                    const token = chunk.message?.content || '';
-                    fullResponse += token;
-
-                    if (token) {
-                        this.data(chunk);
-                    }
-                }
-            } catch (error) {
-                this.error(error);
-            }
-        } else {
-            fullResponse = (response as unknown as ChatResponse).message?.content || '';
-            this.data(fullResponse);
+    private async ollamaChat(request: ChatRequest, ctx: ProviderContext): Promise<RunHandle<any>> {
+        if (!request.stream) {
+            return {
+                final: async () => {
+                    const res = await this.client.chat({...request, stream: false});
+                    return res;
+                },
+            };
         }
+
+        const finalPromise = (async () => {
+            const streamResp = await this.client.chat({...request, stream: true});
+
+            for await (const chunk of streamResp) {
+                const token = chunk?.message?.content ?? "";
+                if (token) ctx.emitTextDelta(token);
+
+                if (chunk?.done) return chunk;
+            }
+
+            return {done: true};
+        })();
+
+        return {final: () => finalPromise};
     }
 }
