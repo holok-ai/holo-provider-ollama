@@ -38,6 +38,10 @@ export class OllamaMessageStopTranslator extends StreamTranslator<HoloStreamChun
         // Emit final chunk with done=true
         // Note: Usage is handled by message.delta translator, not here
         return [pickDefined({
+            message: {
+                        role: 'assistant' as const,
+                        content: ""
+                    },
             done: true as const,
             done_reason: source.finish_reason ? this.mapHoloFinishReasonToOllama(source.finish_reason) : undefined
         }) as Partial<OllamaStreamResponse>];
