@@ -2,13 +2,16 @@ import {injectable} from 'tsyringe';
 import {OllamaChatRequest, OllamaGenerateRequest} from "./types";
 import {
     BaseAuditor,
+    HoloWorkerRequest,
+    HoloWorkerResponse,
     LlmRequest,
     LlmResponse,
     LlmStatus,
-    HoloWorkerRequest,
-    HoloWorkerResponse,
+    pickDefined,
+    ProviderEnvelope,
     RequestType
 } from "@holokai/sdk";
+import {ChatRequest, GenerateRequest} from "ollama";
 
 @injectable()
 export class OllamaAuditor extends BaseAuditor {
@@ -150,5 +153,11 @@ export class OllamaAuditor extends BaseAuditor {
             return Math.round(timeToFirstTokenNs / 1000000);
         }
         return undefined;
+    }
+
+    protected async createProviderEnvelope(payload: GenerateRequest | ChatRequest): Promise<ProviderEnvelope> {
+        return pickDefined({
+            model_slug: payload.model
+        }) as ProviderEnvelope;
     }
 }

@@ -1,8 +1,10 @@
 import {ChatRequest, GenerateRequest, Ollama} from "ollama";
-import {BaseProvider, ModelInfo, ProviderContext, RequestType, RunHandle} from "@holokai/sdk";
+import {BaseProvider, IAuditor, ModelInfo, ProviderContext, RequestType, RunHandle} from "@holokai/sdk";
+import {OllamaAuditor} from "./ollama.auditor";
 
 export class OllamaProvider extends BaseProvider {
     protected readonly client: Ollama;
+    public readonly auditor: IAuditor;
 
     constructor(
         public readonly name: string,
@@ -11,6 +13,7 @@ export class OllamaProvider extends BaseProvider {
         protected readonly _config: any) {
         super(name, family, version, _config);
         this.client = new Ollama(this._config);
+        this.auditor = new OllamaAuditor();
     }
 
     /**
@@ -41,9 +44,9 @@ export class OllamaProvider extends BaseProvider {
         }
     }
 
-    protected async handleRequest(payload: any, ctx: ProviderContext): Promise<RunHandle<any>> {
+    protected async handleRequest(payload: GenerateRequest | ChatRequest, ctx: ProviderContext): Promise<RunHandle<any>> {
         if (ctx.requestType === RequestType.GENERATE) {
-            return this.ollamaGenerate(payload, ctx);
+            return this.ollamaGenerate(payload as GenerateRequest, ctx);
         }
         if (ctx.requestType === RequestType.CHAT) {
             return this.ollamaChat(payload, ctx);
@@ -102,4 +105,5 @@ export class OllamaProvider extends BaseProvider {
 
         return {final: () => finalPromise};
     }
+
 }
