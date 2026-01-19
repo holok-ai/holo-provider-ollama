@@ -237,8 +237,6 @@ This plugin implements the official Holo format mappings as documented in the SD
 - `options.*` - Runtime-specific hardware options
 - `raw` - Skip prompt formatting (Generate mode only)
 
-See [SDK Provider Mappings](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#ollama--holo-requests) for complete details.
-
 ### Response Mapping: Ollama → Holo
 
 | Ollama Field | Holo Field | Transformation | Notes |
@@ -280,8 +278,6 @@ See [SDK Provider Mappings](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#ollama-
 | `'stop'` | `'stop'` | Natural completion |
 | `'length'` | `'length'` | Hit token limit |
 | `null` or missing + `done: true` | `'stop'` | Default fallback |
-
-See [SDK Provider Mappings](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#ollama--holo-responses) for complete details.
 
 ### Content Mapping
 
@@ -587,20 +583,9 @@ interface HoloTool {
 }
 ```
 
-### Runtime Validation
+### Type Safety
 
-All translations validate with ArkType:
-
-```typescript
-import { validateHoloRequest } from '@holokai/sdk/validators';
-
-const result = validateHoloRequest(untrustedInput);
-if (result.problems) {
-  throw new ValidationError(result.problems);
-}
-
-const safeRequest: HoloRequest = result.data;
-```
+All interfaces use strict TypeScript types from `@holokai/sdk` for compile-time validation.
 
 ---
 
@@ -707,10 +692,7 @@ npm run clean
 ## Related Documentation
 
 ### SDK Documentation
-- [Holo Format Overview](../../packages/sdk/docs/HOLO_FORMAT.md)
-- [Provider Mappings](../../packages/sdk/docs/PROVIDER_MAPPINGS.md) - Complete Ollama mappings
-- [Capability Analysis](../../packages/sdk/docs/CAPABILITY_ANALYSIS.md) - Coverage verification
-- [SDK README](../../packages/sdk/README.md) - Plugin development guide
+- [SDK README](../sdk/README.md) - Plugin development guide and templates
 
 ### Ollama Documentation
 - [Official API Docs](https://github.com/ollama/ollama/blob/main/docs/api.md)
@@ -718,9 +700,9 @@ npm run clean
 - [Model Files](https://github.com/ollama/ollama/blob/main/docs/modelfile.md)
 - [FAQ](https://github.com/ollama/ollama/blob/main/docs/faq.md)
 
-### Legacy Documentation (Archived)
-- `src/providers/docs/archive/` - Original monolithic provider docs
-- Migration from these to plugin architecture is complete
+### Migration Notes
+- This plugin was extracted from the monolithic `src/providers/ollama/` codebase
+- Migration to plugin architecture is complete
 
 ---
 
@@ -730,9 +712,8 @@ npm run clean
 
 1. Update types in `@holokai/sdk` first (if needed)
 2. Implement translator logic
-3. Add validators with ArkType
-4. Write tests (unit + integration)
-5. Update this README
+3. Write tests (unit + integration)
+4. Update this README
 
 ### Reporting Issues
 
