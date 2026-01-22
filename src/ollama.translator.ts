@@ -4,10 +4,15 @@ import {HoloMessage, HoloRequest, HoloResponse, HoloStreamChunk, IProviderTransl
 import {
     OllamaChatRequestTranslator,
     OllamaChatResponseTranslator,
+    OllamaContentDeltaTranslator,
     OllamaGenerateRequestTranslator,
     OllamaGenerateResponseTranslator,
+    OllamaMessageDeltaTranslator,
+    OllamaMessageStopTranslator,
     OllamaMessageTranslator,
-    OllamaStreamTranslator
+    OllamaOptionsTranslator,
+    OllamaStreamTranslator,
+    OllamaToolTranslator
 } from "./translators";
 import {
     isGenerateRequest,
@@ -31,6 +36,37 @@ export class OllamaTranslator implements IProviderTranslator {
         private ollamaStreamTranslator: OllamaStreamTranslator
     ) {
 
+    }
+
+    static Instance(): IProviderTranslator {
+        const messageTranslator = new OllamaMessageTranslator();
+        const toolTranslator = new OllamaToolTranslator();
+        const optionsTranslator = new OllamaOptionsTranslator();
+
+        const generateRequestTranslator = new OllamaGenerateRequestTranslator();
+        const chatRequestTranslator = new OllamaChatRequestTranslator(messageTranslator, toolTranslator, optionsTranslator);
+
+        const generateResponseTranslator = new OllamaGenerateResponseTranslator();
+        const chatResponseTranslator = new OllamaChatResponseTranslator(messageTranslator);
+
+        const contentDeltaTranslator = new OllamaContentDeltaTranslator();
+        const messageDeltaTranslator = new OllamaMessageDeltaTranslator();
+        const messageStopTranslator = new OllamaMessageStopTranslator();
+
+        const streamTranslator = new OllamaStreamTranslator(
+            contentDeltaTranslator,
+            messageDeltaTranslator,
+            messageStopTranslator
+        );
+
+        return new OllamaTranslator(
+            generateRequestTranslator,
+            chatRequestTranslator,
+            messageTranslator,
+            chatResponseTranslator,
+            generateResponseTranslator,
+            streamTranslator
+        );
     }
 
     async fromHoloResponse(response: HoloResponse): Promise<Partial<OllamaResponse>> {

@@ -1,46 +1,33 @@
-import {ChatRequest, GenerateRequest, Ollama} from "ollama";
-import {BaseProvider, IAuditor, ModelInfo, ProviderContext, RequestType, RunHandle} from "@holokai/sdk";
+import {ChatRequest, GenerateRequest, ListResponse, Ollama} from "ollama";
+import {BaseProvider, IAuditor, IProviderTranslator, ProviderContext, RequestType, RunHandle} from "@holokai/sdk";
 import {OllamaAuditor} from "./ollama.auditor";
+import {OllamaTranslator} from "./ollama.translator";
 
-export class OllamaProvider extends BaseProvider {
-    protected readonly client: Ollama;
-    public readonly auditor: IAuditor;
+export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatRequest> {
 
-    constructor(
-        public readonly name: string,
-        public readonly family: string,
-        public readonly version: string,
-        protected readonly _config: any) {
-        super(name, family, version, _config);
-        this.client = new Ollama(this._config);
-        this.auditor = new OllamaAuditor();
+    protected createAuditor(): IAuditor {
+        return new OllamaAuditor();
     }
 
-    /**
-     * Get available models
-     */
-    async getModels(): Promise<ModelInfo[]> {
-        const logger = this.mlog(this.getModels);
-        try {
-            const response = await this.client.list();
-            const modelList = response.models.map(model => ({
-                id: model.name,
-                name: model.name,
-                modified_at: model.modified_at,
-                size: model.size || 0
-            }));
+    protected createClient(): Ollama {
+        return new Ollama(this._config);
+    }
 
-            // Update internal models cache
-            this.models = modelList.reduce((acc, model) => {
-                acc[model.id] = model;
-                return acc;
-            }, {} as Record<string, ModelInfo>);
+    protected createTranslator(): IProviderTranslator {
+        return OllamaTranslator.Instance();
+    }
 
-            logger.debug(`Ollama models: ${JSON.stringify(Object.keys(this.models))}`);
-            return modelList;
-        } catch (error) {
-            logger.error(`Error fetching Ollama models: ${(error as Error).stack}`);
-            throw error;
+    async getModels(allowedModels: string[] | true): Promise<ListResponse> {
+        const response = await this.client.list();
+
+        if (allowedModels === true) {
+            return response;
+        }
+        const models = response.models.filter(model => allowedModels.includes(model.name));
+
+        return {
+            ...response,
+            models
         }
     }
 
@@ -84,8 +71,7 @@ export class OllamaProvider extends BaseProvider {
         if (!request.stream) {
             return {
                 final: async () => {
-                    const res = await this.client.chat({...request, stream: false});
-                    return res;
+                    return await this.client.chat({...request, stream: false});
                 },
             };
         }

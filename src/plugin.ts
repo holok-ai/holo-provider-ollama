@@ -9,9 +9,12 @@ import {manifest} from "./manifest.js";
 import {IProvider, IWireAdapter, ProviderCapabilities, WireAdapterParams} from "@holokai/sdk/provider";
 import {OllamaProvider} from "./ollama.provider";
 import {OllamaWireAdapter} from "./ollama.wire.adapter";
+import {RequestType, RouteHandler, RouteTree} from "@holokai/sdk";
+import {OllamaTranslator} from "./ollama.translator";
 
 export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin {
     manifest = manifest;
+    translator = OllamaTranslator.Instance();
 
     async createProvider(config: any): Promise<IProvider> {
         return new OllamaProvider(
@@ -36,16 +39,25 @@ export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin 
         };
     }
 
-    getSupportedModels(): string[] {
-        return [
-            'llama2',
-            'llama3',
-            'mistral',
-            'mixtral',
-            'codellama',
-            'phi',
-            'gemma'
-        ];
+    getRoutes(): RouteTree {
+        return {
+            v1: {
+                tags: {
+                    method: 'GET',
+                    handler: RouteHandler.MODELS
+                },
+                chat: {
+                    method: 'POST',
+                    requestType: RequestType.CHAT,
+                    handler: RouteHandler.REQUEST
+                },
+                generate: {
+                    method: 'POST',
+                    requestType: RequestType.GENERATE,
+                    handler: RouteHandler.REQUEST
+                }
+            }
+        }
     }
 
     protected onInitialize(_context: PluginContext): Promise<void> {
