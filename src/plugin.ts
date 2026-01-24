@@ -41,7 +41,7 @@ export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin 
 
     getRoutes(): RouteTree {
         return {
-            v1: {
+            api: {
                 tags: {
                     method: 'GET',
                     handler: RouteHandler.MODELS

@@ -49,13 +49,13 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
     }
 
     protected async handleRequest(payload: GenerateRequest | ChatRequest, ctx: ProviderContext): Promise<RunHandle<any>> {
-        if (ctx.requestType === RequestType.GENERATE) {
-            return this.ollamaGenerate(payload as GenerateRequest, ctx);
+        switch (ctx.requestType) {
+            case RequestType.GENERATE:
+                return this.ollamaGenerate(payload as GenerateRequest, ctx);
+            case RequestType.CHAT:
+                return this.ollamaChat(payload, ctx);
         }
-        if (ctx.requestType === RequestType.CHAT) {
-            return this.ollamaChat(payload, ctx);
-        }
-        throw new Error(`Unsupported requestType: ${ctx.requestType}`);
+        throw new Error(`Unsupported requestType: ${JSON.stringify(ctx)}`);
     }
 
     private async ollamaGenerate(request: GenerateRequest, ctx: ProviderContext): Promise<RunHandle<any>> {
@@ -71,6 +71,8 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
             const streamResp = await this.client.generate({...request, stream: true});
 
             for await (const chunk of streamResp) {
+                ctx.emitStreamEvent(chunk);
+
                 const token = chunk?.response ?? '';
                 if (token) ctx.emitTextDelta(token);
 
@@ -97,6 +99,8 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
             const streamResp = await this.client.chat({...request, stream: true});
 
             for await (const chunk of streamResp) {
+                ctx.emitStreamEvent(chunk);
+
                 const token = chunk?.message?.content ?? '';
                 if (token) ctx.emitTextDelta(token);
 
