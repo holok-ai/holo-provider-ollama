@@ -4,14 +4,12 @@ import {
     BaseAuditor,
     HoloWorkerRequest,
     HoloWorkerResponse,
-    LlmRequest,
-    LlmResponse,
-    LlmStatus,
     pickDefined,
     ProviderEnvelope,
     RequestType
 } from "@holokai/sdk";
 import {ChatRequest, GenerateRequest} from "ollama";
+import {LlmRequest, LlmResponse, LlmStatus} from "@holokai/sdk/core/entities";
 
 @injectable()
 export class OllamaAuditor extends BaseAuditor {

@@ -38,7 +38,7 @@ export class OllamaTranslator implements IProviderTranslator {
 
     }
 
-    static Instance(): IProviderTranslator {
+    static instance(): IProviderTranslator {
         const messageTranslator = new OllamaMessageTranslator();
         const toolTranslator = new OllamaToolTranslator();
         const optionsTranslator = new OllamaOptionsTranslator();

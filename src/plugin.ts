@@ -14,7 +14,7 @@ import {OllamaTranslator} from "./ollama.translator";
 
 export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin {
     manifest = manifest;
-    translator = OllamaTranslator.Instance();
+    translator = OllamaTranslator.instance();
 
     async createProvider(config: any): Promise<IProvider> {
         return new OllamaProvider(

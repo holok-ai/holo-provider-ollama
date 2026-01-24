@@ -1,7 +1,16 @@
-import {ChatRequest, GenerateRequest, ListResponse, Ollama} from "ollama";
-import {BaseProvider, IAuditor, IProviderTranslator, ProviderContext, RequestType, RunHandle} from "@holokai/sdk";
-import {OllamaAuditor} from "./ollama.auditor";
-import {OllamaTranslator} from "./ollama.translator";
+import {ChatRequest, ErrorResponse, GenerateRequest, ListResponse, Ollama} from 'ollama';
+import {
+    BaseProvider,
+    IAuditor,
+    IProviderTranslator,
+    IResponseFactory,
+    ProviderContext,
+    RequestType,
+    RunHandle
+} from '@holokai/sdk';
+import {OllamaAuditor} from './ollama.auditor';
+import {OllamaTranslator} from './ollama.translator';
+import {OllamaResponseFactory} from './ollama.response.factory';
 
 export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatRequest> {
 
@@ -14,7 +23,11 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
     }
 
     protected createTranslator(): IProviderTranslator {
-        return OllamaTranslator.Instance();
+        return OllamaTranslator.instance();
+    }
+
+    protected createResponseFactory(): IResponseFactory {
+        return OllamaResponseFactory.instance();
     }
 
     async getModels(allowedModels: string[] | true): Promise<ListResponse> {
@@ -29,6 +42,10 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
             ...response,
             models
         }
+    }
+
+    protected async handleError(error: Error): Promise<ErrorResponse> {
+        return {error: error.message}
     }
 
     protected async handleRequest(payload: GenerateRequest | ChatRequest, ctx: ProviderContext): Promise<RunHandle<any>> {
@@ -54,7 +71,7 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
             const streamResp = await this.client.generate({...request, stream: true});
 
             for await (const chunk of streamResp) {
-                const token = chunk?.response ?? "";
+                const token = chunk?.response ?? '';
                 if (token) ctx.emitTextDelta(token);
 
                 if (chunk?.done) return chunk;   // authoritative completion value
@@ -80,7 +97,7 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
             const streamResp = await this.client.chat({...request, stream: true});
 
             for await (const chunk of streamResp) {
-                const token = chunk?.message?.content ?? "";
+                const token = chunk?.message?.content ?? '';
                 if (token) ctx.emitTextDelta(token);
 
                 if (chunk?.done) return chunk;
