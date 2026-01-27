@@ -61,14 +61,23 @@ export class OllamaAuditor extends BaseAuditor {
         llmResponse.model_slug = payload.model || 'unknown';
 
         // Extract response text from final response
-        if (workerResponse.fullResponse) {
+        if (workerResponse.fullResponse !== undefined) {
             llmResponse.response = workerResponse.fullResponse;
-        } else if (payload.response) {
+        } else if (payload.response !== undefined) {
             // Generate format
             llmResponse.response = payload.response;
-        } else if (payload.message?.content) {
-            // Chat format
-            llmResponse.response = payload.message.content;
+        } else if (payload.message?.content !== undefined) {
+            // Chat format - handle empty content with tool calls
+            if (payload.message.content === '' && payload.message.tool_calls) {
+                llmResponse.response = JSON.stringify(payload.message.tool_calls);
+            } else {
+                llmResponse.response = payload.message.content;
+            }
+        }
+
+        // Ensure response is never undefined for successful completions
+        if (llmResponse.response === undefined) {
+            llmResponse.response = '';
         }
     }
 
