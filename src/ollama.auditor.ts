@@ -1,15 +1,8 @@
 import {injectable} from 'tsyringe';
 import {OllamaChatRequest, OllamaGenerateRequest} from "./types";
-import {
-    BaseAuditor,
-    HoloWorkerRequest,
-    HoloWorkerResponse,
-    pickDefined,
-    ProviderEnvelope,
-    RequestType
-} from "@holokai/sdk";
-import {ChatRequest, GenerateRequest} from "ollama";
-import {LlmRequest, LlmResponse, LlmStatus} from "@holokai/sdk/core/entities";
+import {BaseAuditor, HoloWorkerRequest, pickDefined, ProviderEnvelope, ProviderEvent, RequestType} from "@holokai/sdk";
+import {ChatRequest, ChatResponse, GenerateRequest, GenerateResponse} from "ollama";
+import {LlmRequest} from "@holokai/sdk/core/entities";
 
 @injectable()
 export class OllamaAuditor extends BaseAuditor {
@@ -51,78 +44,24 @@ export class OllamaAuditor extends BaseAuditor {
         }
     }
 
-    protected mapResponseToHolo(
-        workerResponse: HoloWorkerResponse,
-        llmResponse: Omit<LlmResponse, 'id'>
-    ): void {
-        const payload = workerResponse.payload;
-
-        // Extract model from payload
-        llmResponse.model_slug = payload.model || 'unknown';
-
-        // Extract response text from final response
-        if (workerResponse.fullResponse !== undefined) {
-            llmResponse.response = workerResponse.fullResponse;
-        } else if (payload.response !== undefined) {
-            // Generate format
-            llmResponse.response = payload.response;
-        } else if (payload.message?.content !== undefined) {
-            // Chat format - handle empty content with tool calls
-            if (payload.message.content === '' && payload.message.tool_calls) {
-                llmResponse.response = JSON.stringify(payload.message.tool_calls);
-            } else {
-                llmResponse.response = payload.message.content;
-            }
+    protected async mapResponseMetrics(providerEvent: Extract<ProviderEvent, { type: 'done' | 'error' }>) {
+        const metrics = await super.mapResponseMetrics(providerEvent);
+        if (providerEvent.type === 'error') {
+            return metrics;
         }
 
-        // Ensure response is never undefined for successful completions
-        if (llmResponse.response === undefined) {
-            llmResponse.response = '';
-        }
-    }
-
-    protected collectResponseMetrics(
-        workerResponse: HoloWorkerResponse,
-        llmResponse: Omit<LlmResponse, 'id'>
-    ): void {
-        const payload = workerResponse.payload;
-
-        // Extract token usage from metrics or payload
-        if (workerResponse.metrics) {
-            llmResponse.usage_raw = workerResponse.metrics;
-            llmResponse.input_tokens = workerResponse.metrics.inputTokens;
-            llmResponse.output_tokens = workerResponse.metrics.outputTokens;
-            llmResponse.time_to_first_token = workerResponse.metrics.timeToFirstToken;
-            llmResponse.total_processing_time = workerResponse.metrics.totalProcessingTime;
-        } else {
-            const promptTokens = payload.prompt_eval_count || 0;
-            const responseTokens = payload.eval_count || 0;
-            // Fallback to payload data
-            llmResponse.input_tokens = promptTokens;
-            llmResponse.output_tokens = responseTokens;
-
-            if (payload.total_duration) {
-                llmResponse.total_processing_time = Math.round(payload.total_duration / 1000000); // Convert nanoseconds to milliseconds
-            }
-
-            // Calculate time to first token using Ollama timing data
-            llmResponse.time_to_first_token = this.calculateTimeToFirstToken(payload);
-
-            const metrics = {
-                input_tokens: promptTokens,
-                output_tokens: responseTokens,
-                time_to_first_token: this.calculateTimeToFirstToken(payload),
-                total_processing_time: (payload.total_duration ? Math.round(payload.total_duration / 1000000) : undefined)
-            };
-            llmResponse.usage_raw = metrics;
+        const payload = providerEvent.message as ChatResponse | GenerateResponse;
+        const usage = {
+            input_tokens: payload.prompt_eval_count || metrics.input_tokens,
+            output_tokens: payload.eval_count || metrics.output_tokens,
+            time_to_first_token: this.calculateTimeToFirstToken(payload) || metrics.time_to_first_token,
+            total_processing_time: payload.total_duration ? Math.round(payload.total_duration / 1000000) : metrics.total_processing_time
         }
 
-        // Set status based on completion
-        if (payload.done === true) {
-            llmResponse.status = LlmStatus.SUCCESS;
-        } else {
-            llmResponse.status = LlmStatus.PARTIAL;
-        }
+        return pickDefined({
+            usage_raw: usage,
+            ...usage
+        });
     }
 
     private extractUserPromptFromMessages(messages?: any[]): string | undefined {

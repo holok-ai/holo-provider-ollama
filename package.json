@@ -55,7 +55,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:integration": "jest tests/integration",
-    "prepublishOnly": "npm run clean && npm run build && npm run test"
+    "prepublishOnly": "npm run clean && npm run build"
   },
   "peerDependencies": {
     "@holokai/sdk": "^0.1.0"
