@@ -49,7 +49,6 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
     }
 
     protected async handleRequest(payload: GenerateRequest | ChatRequest, ctx: ProviderContext): Promise<RunHandle<any>> {
-        this.log.trace(`ollama request: ${JSON.stringify(payload)}`);
         switch (ctx.requestType) {
             case RequestType.GENERATE:
                 return this.ollamaGenerate(payload as GenerateRequest, ctx);
@@ -63,10 +62,8 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
         if (!request.stream) {
             return {
                 final: async () => {
-                    this.log.trace(`Ollama generate request: ${JSON.stringify(request)}`);
                     try {
                         const response = await this.client.generate({...request, stream: false /* ensure */});
-                        this.log.debug(`Ollama generate response: ${JSON.stringify(response)}`);
                         return response;
                     } catch (error) {
                         this.log.error(`Ollama generate error: ${error instanceof Error ? error.message : String(error)}`, {
@@ -102,10 +99,8 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
         if (!request.stream) {
             return {
                 final: async () => {
-                    this.log.trace(`Ollama chat request: ${JSON.stringify(request)}`);
                     try {
                         const response = await this.client.chat({...request, stream: false});
-                        this.log.trace(`Ollama chat response: ${JSON.stringify(response)}`);
                         return response;
                     } catch (error) {
                         this.log.error(`Ollama chat error: ${error instanceof Error ? error.message : String(error)}`, {
