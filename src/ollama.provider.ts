@@ -30,6 +30,10 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
         return OllamaResponseFactory.instance();
     }
 
+    async getModelNameFromRequest(payload: GenerateRequest | ChatRequest): Promise<string> {
+        return payload.model;
+    }
+
     async getModels(allowedModels: string[] | true): Promise<ListResponse> {
         const response = await this.client.list();
 
