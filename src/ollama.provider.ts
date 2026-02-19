@@ -66,7 +66,16 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
         if (!request.stream) {
             return {
                 final: async () => {
-                    return await this.client.generate({...request, stream: false /* ensure */});
+                    try {
+                        const response = await this.client.generate({...request, stream: false /* ensure */});
+                        return response;
+                    } catch (error) {
+                        this.log.error(`Ollama generate error: ${error instanceof Error ? error.message : String(error)}`, {
+                            config: JSON.stringify(this._config),
+                            request: JSON.stringify(request)
+                        });
+                        throw error;
+                    }
                 },
             };
         }
@@ -94,7 +103,16 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
         if (!request.stream) {
             return {
                 final: async () => {
-                    return await this.client.chat({...request, stream: false});
+                    try {
+                        const response = await this.client.chat({...request, stream: false});
+                        return response;
+                    } catch (error) {
+                        this.log.error(`Ollama chat error: ${error instanceof Error ? error.message : String(error)}`, {
+                            config: JSON.stringify(this._config),
+                            request: JSON.stringify(request)
+                        });
+                        throw error;
+                    }
                 },
             };
         }
