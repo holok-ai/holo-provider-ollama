@@ -1,6 +1,6 @@
 {
   "name": "@holokai/holo-provider-ollama",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "type": "module",
   "description": "Ollama provider plugin for Holo LLM Gateway",
   "author": "Holokai",
@@ -58,7 +58,7 @@
     "prepublishOnly": "npm run clean && npm run build"
   },
   "peerDependencies": {
-    "@holokai/sdk": "^0.1.1"
+    "@holokai/sdk": "^0.1.4"
   },
   "dependencies": {
     "ollama": "^0.6.3"
