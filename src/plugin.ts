@@ -15,6 +15,7 @@ import {OllamaTranslator} from "./ollama.translator";
 export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin {
     manifest = manifest;
     translator = OllamaTranslator.instance();
+    defaultRouteHandler = RouteHandler.PASSTHROUGH;
 
     async createProvider(config: any): Promise<IProvider> {
         return new OllamaProvider(
@@ -42,10 +43,6 @@ export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin 
     getRoutes(): RouteTree {
         return {
             api: {
-                tags: {
-                    method: 'GET',
-                    handler: RouteHandler.MODELS
-                },
                 chat: {
                     method: 'POST',
                     requestType: RequestType.CHAT,
@@ -54,6 +51,15 @@ export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin 
                 generate: {
                     method: 'POST',
                     requestType: RequestType.GENERATE,
+                    handler: RouteHandler.REQUEST
+                },
+                tags: {
+                    method: 'GET',
+                    handler: RouteHandler.MODELS
+                },
+                embed: {
+                    method: 'POST',
+                    requestType: RequestType.EMBED,
                     handler: RouteHandler.REQUEST
                 }
             }

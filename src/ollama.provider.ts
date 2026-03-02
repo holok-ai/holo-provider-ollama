@@ -1,4 +1,4 @@
-import {ChatRequest, ErrorResponse, GenerateRequest, ListResponse, Ollama} from 'ollama';
+import {ChatRequest, EmbedRequest, ErrorResponse, GenerateRequest, ListResponse, Ollama} from 'ollama';
 import {
     BaseProvider,
     IAuditor,
@@ -48,16 +48,31 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
         }
     }
 
+    async ollamaEmbed(payload: EmbedRequest, _ctx: ProviderContext) {
+        return {
+            final: async () => {
+                try {
+                    return await this.client.embed(payload);
+                } catch (error) {
+                    this.log.error(`Ollama embed error: ${error instanceof Error ? error.message : String(error)}`);
+                    throw error;
+                }
+            }
+        }
+    }
+
     protected async handleError(error: Error): Promise<ErrorResponse> {
         return {error: error.message}
     }
 
-    protected async handleRequest(payload: GenerateRequest | ChatRequest, ctx: ProviderContext): Promise<RunHandle<any>> {
+    protected async handleRequest(payload: GenerateRequest | ChatRequest | EmbedRequest, ctx: ProviderContext): Promise<RunHandle<any>> {
         switch (ctx.requestType) {
             case RequestType.GENERATE:
                 return this.ollamaGenerate(payload as GenerateRequest, ctx);
             case RequestType.CHAT:
-                return this.ollamaChat(payload, ctx);
+                return this.ollamaChat(payload as ChatRequest, ctx);
+            case RequestType.EMBED:
+                return this.ollamaEmbed(payload as EmbedRequest, ctx);
         }
         throw new Error(`Unsupported requestType: ${JSON.stringify(ctx)}`);
     }
@@ -67,8 +82,7 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
             return {
                 final: async () => {
                     try {
-                        const response = await this.client.generate({...request, stream: false /* ensure */});
-                        return response;
+                        return await this.client.generate({...request, stream: false /* ensure */});
                     } catch (error) {
                         this.log.error(`Ollama generate error: ${error instanceof Error ? error.message : String(error)}`, {
                             config: JSON.stringify(this._config),
@@ -104,8 +118,7 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
             return {
                 final: async () => {
                     try {
-                        const response = await this.client.chat({...request, stream: false});
-                        return response;
+                        return await this.client.chat({...request, stream: false});
                     } catch (error) {
                         this.log.error(`Ollama chat error: ${error instanceof Error ? error.message : String(error)}`, {
                             config: JSON.stringify(this._config),
