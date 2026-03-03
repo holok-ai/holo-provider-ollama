@@ -1,6 +1,6 @@
-import type {IHoloPluginManifest} from "@holokai/types/plugin";
+import type {PluginManifest} from "@holokai/types/plugin";
 
-export const manifest: IHoloPluginManifest = {
+export const manifest: PluginManifest = {
     name: '@holokai/provider-ollama',
     version: '1.0.0',
     pluginType: 'provider',

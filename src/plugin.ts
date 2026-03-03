@@ -5,7 +5,7 @@
  */
 
 import {BasePlugin} from '@holokai/sdk/plugin';
-import type {IPluginContext, IProviderPlugin} from '@holokai/types/plugin';
+import type {IProviderPlugin, PluginContext} from '@holokai/types/plugin';
 import {manifest} from "./manifest.js";
 import type {IProvider, IWireAdapter, ProviderCapabilities, WireAdapterParams} from "@holokai/types/provider";
 import {OllamaProvider} from "./ollama.provider";
@@ -69,7 +69,7 @@ export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin 
         }
     }
 
-    protected onInitialize(_context: IPluginContext): Promise<void> {
+    protected onInitialize(_context: PluginContext): Promise<void> {
         return Promise.resolve();
     }
 
