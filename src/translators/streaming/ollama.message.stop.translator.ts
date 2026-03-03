@@ -1,8 +1,9 @@
 import 'reflect-metadata';
 import {injectable} from 'tsyringe';
 import {OllamaChatResponse, OllamaGenerateResponse} from '../../types';
-import {HoloFinishReason, HoloStreamChunk, pickDefined} from "@holokai/sdk";
+import {pickDefined} from "@holokai/sdk";
 import {StreamTranslator} from "@holokai/sdk/provider";
+import type {HoloFinishReason, HoloStreamChunk} from "@holokai/types/holo";
 
 type OllamaStreamResponse = Partial<OllamaChatResponse> | Partial<OllamaGenerateResponse>;
 
@@ -39,9 +40,9 @@ export class OllamaMessageStopTranslator extends StreamTranslator<HoloStreamChun
         // Note: Usage is handled by message.delta translator, not here
         return [pickDefined({
             message: {
-                        role: 'assistant' as const,
-                        content: ""
-                    },
+                role: 'assistant' as const,
+                content: ""
+            },
             done: true as const,
             done_reason: source.finish_reason ? this.mapHoloFinishReasonToOllama(source.finish_reason) : undefined
         }) as Partial<OllamaStreamResponse>];

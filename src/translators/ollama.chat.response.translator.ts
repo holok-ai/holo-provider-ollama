@@ -3,7 +3,8 @@ import {OllamaChatResponse} from "../types";
 import {injectable} from 'tsyringe';
 import {OllamaMessageTranslator} from "./ollama.message.translators";
 import {BaseTranslator} from "@holokai/sdk/provider";
-import {HoloFinishReason, HoloMessage, HoloResponse, HoloUsage, pickDefined} from "@holokai/sdk";
+import {pickDefined} from "@holokai/sdk";
+import type {HoloFinishReason, HoloMessage, HoloResponse, HoloUsage} from "@holokai/types/holo";
 
 /**
  * Translator for Ollama Chat API responses.

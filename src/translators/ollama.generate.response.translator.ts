@@ -1,8 +1,9 @@
 import 'reflect-metadata';
 import {OllamaGenerateResponse} from "../types";
 import {injectable} from 'tsyringe';
-import {HoloFinishReason, HoloMessage, HoloResponse, HoloUsage, pickDefined} from "@holokai/sdk";
+import {pickDefined} from "@holokai/sdk";
 import {BaseTranslator} from "@holokai/sdk/provider";
+import type {HoloFinishReason, HoloMessage, HoloResponse, HoloUsage} from "@holokai/types/holo";
 
 /**
  * Translator for Ollama Generate API responses.

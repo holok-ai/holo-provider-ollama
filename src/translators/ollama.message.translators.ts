@@ -2,7 +2,8 @@ import 'reflect-metadata';
 import {OllamaMessage} from "../types";
 import {injectable} from 'tsyringe';
 import {BaseTranslator} from "@holokai/sdk/provider";
-import {HoloContent, HoloMessage, isUint8Array, pickDefined, uint8ToDataUrl} from "@holokai/sdk";
+import {isUint8Array, pickDefined, uint8ToDataUrl} from "@holokai/sdk";
+import type {HoloContent, HoloMessage} from "@holokai/types/holo";
 
 @injectable()
 export class OllamaMessageTranslator extends BaseTranslator<HoloMessage, OllamaMessage> {

@@ -5,7 +5,7 @@ import {OllamaContentDeltaTranslator} from './ollama.content.delta.translator';
 import {OllamaMessageDeltaTranslator} from './ollama.message.delta.translator';
 import {OllamaMessageStopTranslator} from './ollama.message.stop.translator';
 import {StreamTranslator} from "@holokai/sdk/provider";
-import {HoloStreamChunk} from "@holokai/sdk";
+import type {HoloStreamChunk} from "@holokai/types/holo";
 
 // Union type for Ollama streaming responses (partials with done flag)
 type OllamaStreamResponse = Partial<OllamaChatResponse> | Partial<OllamaGenerateResponse>;

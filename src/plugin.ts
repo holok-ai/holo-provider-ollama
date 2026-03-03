@@ -4,12 +4,15 @@
  * Implements IProviderPlugin contract for Ollama API
  */
 
-import {BasePlugin, IProviderPlugin, PluginContext} from '@holokai/sdk/plugin';
+import {BasePlugin} from '@holokai/sdk/plugin';
+import type {IPluginContext, IProviderPlugin} from '@holokai/types/plugin';
 import {manifest} from "./manifest.js";
-import {IProvider, IWireAdapter, ProviderCapabilities, WireAdapterParams} from "@holokai/sdk/provider";
+import type {IProvider, IWireAdapter, ProviderCapabilities, WireAdapterParams} from "@holokai/types/provider";
 import {OllamaProvider} from "./ollama.provider";
 import {OllamaWireAdapter} from "./ollama.wire.adapter";
-import {RequestType, RouteHandler, RouteTree} from "@holokai/sdk";
+import {RequestType} from "@holokai/types/holo";
+import type {RouteTree} from "@holokai/types/routing";
+import {RouteHandler} from "@holokai/types/routing";
 import {OllamaTranslator} from "./ollama.translator";
 
 export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin {
@@ -66,7 +69,7 @@ export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin 
         }
     }
 
-    protected onInitialize(_context: PluginContext): Promise<void> {
+    protected onInitialize(_context: IPluginContext): Promise<void> {
         return Promise.resolve();
     }
 

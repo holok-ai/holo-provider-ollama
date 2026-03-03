@@ -1,12 +1,12 @@
-import {IResponseFactory} from "@holokai/sdk";
+import type {IResponseFactory} from "@holokai/types/provider";
 import {ErrorResponse} from "ollama";
 
 export class OllamaResponseFactory implements IResponseFactory {
-    createError(message: string): ErrorResponse {
-        return {error: message};
-    }
-
     static instance(): OllamaResponseFactory {
         return new OllamaResponseFactory();
+    }
+
+    createError(message: string): ErrorResponse {
+        return {error: message};
     }
 }

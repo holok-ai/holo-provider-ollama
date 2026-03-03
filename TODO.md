@@ -1,6 +1,8 @@
 # Ollama Provider Plugin - Todo List
 
-> **Context**: This plugin was extracted from the monolithic `src/providers/ollama/` architecture as part of the migration to plugin-based providers. This TODO tracks remaining work to complete the migration and achieve full Holo format compliance.
+> **Context**: This plugin was extracted from the monolithic `src/providers/ollama/` architecture as part of the
+> migration to plugin-based providers. This TODO tracks remaining work to complete the migration and achieve full Holo
+> format compliance.
 
 ---
 
@@ -32,18 +34,21 @@
 ### #CRITICAL-1: Synthesize ID Field in All Response Translators
 
 **Files**:
+
 - `src/translators/ollama.chat.response.translator.ts`
 - `src/translators/ollama.generate.response.translator.ts`
 - `src/translators/streaming/ollama.content.delta.translator.ts`
 - `src/translators/streaming/ollama.message.delta.translator.ts`
 - `src/translators/streaming/ollama.message.stop.translator.ts`
 
-**Issue**: Ollama responses lack stable `id` fields. Per [SDK Provider Mappings](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#ollama--holo-responses), translators MUST synthesize UUIDs.
+**Issue**: Ollama responses lack stable `id` fields.
+Per [SDK Provider Mappings](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#ollama--holo-responses), translators MUST
+synthesize UUIDs.
 
 **Required Action**:
 
 ```typescript
-import { randomUUID } from 'crypto';
+import {randomUUID} from 'crypto';
 
 // In toHoloImpl/toHoloManyImpl:
 const holoResponse: HoloResponse = {
@@ -56,11 +61,13 @@ const holoResponse: HoloResponse = {
 ```
 
 **Streaming Consideration**:
+
 - Generate ID at stream start
 - Reuse same ID across all chunks in session
 - Requires state tracking or passing ID through context
 
-**Reference**: [SDK Provider Mappings - Ollama ID Synthesis](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#ollama--holo-responses)
+**Reference
+**: [SDK Provider Mappings - Ollama ID Synthesis](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#ollama--holo-responses)
 
 **Impact**: HoloResponse/HoloStreamChunk missing required `id` field
 
@@ -76,16 +83,19 @@ const holoResponse: HoloResponse = {
 **Issue**: Passes ISO8601 string directly instead of converting to milliseconds.
 
 **Current Code**:
+
 ```typescript
 created: source.created_at  // ❌ String, not number
 ```
 
 **Required Fix**:
+
 ```typescript
 created: source.created_at ? Date.parse(source.created_at) : undefined  // ✅ Milliseconds
 ```
 
-**Reference**: [SDK Provider Mappings - Timestamp Normalization](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#ollama--holo-responses)
+**Reference
+**: [SDK Provider Mappings - Timestamp Normalization](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#ollama--holo-responses)
 
 **Note**: Chat response translator already correctly uses `new Date(source.created_at).getTime()` ✓
 
@@ -98,6 +108,7 @@ created: source.created_at ? Date.parse(source.created_at) : undefined  // ✅ M
 ### #CRITICAL-3: Add Timestamp Extraction in All Streaming Translators
 
 **Files**:
+
 - `src/translators/streaming/ollama.content.delta.translator.ts`
 - `src/translators/streaming/ollama.message.delta.translator.ts`
 - `src/translators/streaming/ollama.message.stop.translator.ts`
@@ -115,7 +126,8 @@ created: source.created_at ? Date.parse(source.created_at) : undefined  // ✅ M
 }
 ```
 
-**Reference**: [SDK Capability Analysis - Timestamp Normalization](../../packages/sdk/docs/CAPABILITY_ANALYSIS.md#timestamp-normalization)
+**Reference
+**: [SDK Capability Analysis - Timestamp Normalization](../../packages/sdk/docs/CAPABILITY_ANALYSIS.md#timestamp-normalization)
 
 **Impact**: Missing timestamps in streaming events
 
@@ -126,39 +138,51 @@ created: source.created_at ? Date.parse(source.created_at) : undefined  // ✅ M
 ### #CRITICAL-4: Default finish_reason to 'stop' When Missing
 
 **Files**:
+
 - `src/translators/ollama.chat.response.translator.ts`
 - `src/translators/ollama.generate.response.translator.ts`
 - `src/translators/streaming/ollama.message.delta.translator.ts`
 - `src/translators/streaming/ollama.message.stop.translator.ts`
 
-**Issue**: Per [SDK Provider Mappings](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#ollama--holo-responses), should default to `'stop'` when `done=true && !done_reason`. Current mappers return `null` for missing reasons.
+**Issue**: Per [SDK Provider Mappings](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#ollama--holo-responses), should
+default to `'stop'` when `done=true && !done_reason`. Current mappers return `null` for missing reasons.
 
 **Required Action**: Modify `mapFinishReasonToHolo` methods:
 
 ```typescript
-private mapFinishReasonToHolo(
-    doneReason: string | null | undefined,
-    done: boolean
-): HoloFinishReason | null {
+private
+mapFinishReasonToHolo(
+    doneReason
+:
+string | null | undefined,
+    done
+:
+boolean
+):
+HoloFinishReason | null
+{
     if (!doneReason) {
         // Default to 'stop' when done=true but done_reason is missing
         return done ? 'stop' : null;
     }
 
     switch (doneReason) {
-        case 'stop': return 'stop';
-        case 'length': return 'length';
+        case 'stop':
+            return 'stop';
+        case 'length':
+            return 'length';
         default:
             this.mlog(this.mapFinishReasonToHolo).warn(
                 'Unknown done_reason from Ollama',
-                { doneReason }
+                {doneReason}
             );
             return null;
     }
 }
 ```
 
-**Reference**: [SDK Provider Mappings - Finish Reason Mapping](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#finish-reason-mappings)
+**Reference
+**: [SDK Provider Mappings - Finish Reason Mapping](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#finish-reason-mappings)
 
 **Impact**: Missing finish_reason in completed responses
 
@@ -179,7 +203,7 @@ if (source.tool_choice) {
     const logger = this.mlog(this.fromHoloImpl);
     logger.warn(
         'Ollama does not support tool_choice; model will auto-select tools',
-        { tool_choice: source.tool_choice, model: source.model }
+        {tool_choice: source.tool_choice, model: source.model}
     );
 }
 ```
@@ -199,7 +223,8 @@ if (source.tool_choice) {
 **File**: `src/translators/streaming/ollama.stream.translator.ts`
 **Lines**: ~30-56 (`toHoloManyImpl`)
 
-**Issue**: Per [SDK Provider Mappings](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#streaming-mappings), orchestrator must emit `message_start` on first frame. Ollama has no explicit start event.
+**Issue**: Per [SDK Provider Mappings](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#streaming-mappings), orchestrator
+must emit `message_start` on first frame. Ollama has no explicit start event.
 
 **Problem**: Orchestrator is currently stateless, cannot track "first frame".
 
@@ -259,11 +284,13 @@ export class OllamaStreamTranslator extends BaseStreamTranslator {
 ```
 
 **Architecture Decision Needed**:
+
 - Violates "stateless translator" principle
 - Alternative: Handle at higher layer (WorkerServer)
 - Need to decide: Are streaming orchestrators exempt from statelessness?
 
 **Reference**:
+
 - [SDK Streaming Docs](../../packages/sdk/docs/README.md#streaming)
 - [Provider Mappings - Ollama Streaming](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#ollama-streaming-completion)
 
@@ -282,6 +309,7 @@ export class OllamaStreamTranslator extends BaseStreamTranslator {
 **Priority**: P1
 
 **Current State**:
+
 - Plugin imports from `@holokai/sdk` for public APIs
 - Internal translators may still use legacy type patterns
 - Need audit of all `Record<string, unknown>` instances
@@ -295,13 +323,14 @@ export class OllamaStreamTranslator extends BaseStreamTranslator {
    ```
 
 2. **Replace with SDK types**:
-   - Tool parameters: Use `HoloJsonSchema` instead of `Record<string, unknown>`
-   - Tool arguments: Use `HoloFunctionArguments` instead of flexible types
-   - All Holo types: Import from `@holokai/sdk`
+    - Tool parameters: Use `HoloJsonSchema` instead of `Record<string, unknown>`
+    - Tool arguments: Use `HoloFunctionArguments` instead of flexible types
+    - All Holo types: Import from `@holokai/sdk`
 
 3. **Update validators** to match SDK types
 
-**Reference**: [SDK Capability Analysis - Type Safety](../../packages/sdk/docs/CAPABILITY_ANALYSIS.md#type-safety-analysis)
+**Reference
+**: [SDK Capability Analysis - Type Safety](../../packages/sdk/docs/CAPABILITY_ANALYSIS.md#type-safety-analysis)
 
 **Impact**: Critical for type safety compliance with Holo spec
 
@@ -313,6 +342,7 @@ export class OllamaStreamTranslator extends BaseStreamTranslator {
 **Priority**: P1
 
 **Current State**:
+
 - Basic unit tests exist
 - No comprehensive SDK validation tests
 - No round-trip translation tests
@@ -371,8 +401,8 @@ export class OllamaStreamTranslator extends BaseStreamTranslator {
    ```
 
 4. **Add validation tests per SDK docs**:
-   - See [SDK README Testing Section](../../packages/sdk/docs/README.md#testing)
-   - Verify all mappings from [Provider Mappings](../../packages/sdk/docs/PROVIDER_MAPPINGS.md)
+    - See [SDK README Testing Section](../../packages/sdk/docs/README.md#testing)
+    - Verify all mappings from [Provider Mappings](../../packages/sdk/docs/PROVIDER_MAPPINGS.md)
 
 **Impact**: Confidence in migration completeness and SDK compliance
 
@@ -387,25 +417,27 @@ export class OllamaStreamTranslator extends BaseStreamTranslator {
 **Priority**: P2
 
 **Required Actions**:
+
 - Add runtime validation of plugin config against manifest.configSchema
 - Throw descriptive errors for invalid configurations
 - Add tests for config validation
 
 **Example**:
+
 ```typescript
 import Ajv from 'ajv';
-import { manifest } from './manifest';
+import {manifest} from './manifest';
 
 const ajv = new Ajv();
 const validateConfig = ajv.compile(manifest.configSchema);
 
 export class OllamaProviderPlugin {
-  constructor(config: unknown) {
-    if (!validateConfig(config)) {
-      throw new ConfigurationError(validateConfig.errors);
+    constructor(config: unknown) {
+        if (!validateConfig(config)) {
+            throw new ConfigurationError(validateConfig.errors);
+        }
+        // ...
     }
-    // ...
-  }
 }
 ```
 
@@ -418,10 +450,12 @@ export class OllamaProviderPlugin {
 **Issue**: Options mapping (`temperature`, `top_p`, `top_k`, etc.) scattered across request translators.
 
 **Current State**:
+
 - Generate request translator: Maps options directly ✓
 - Chat request translator: May have inconsistent mapping
 
 **Required Action**:
+
 - Centralize all option mappings in one utility
 - OR: Document intentional pattern and enforce consistency
 
@@ -438,6 +472,7 @@ export class OllamaProviderPlugin {
 **Priority**: P2
 
 **Actions Taken**:
+
 - ✅ Added complete Holo format mapping tables
 - ✅ Referenced SDK documentation
 - ✅ Documented migration from monolith
@@ -456,6 +491,7 @@ export class OllamaProviderPlugin {
 **Priority**: P2
 
 **Required Actions**:
+
 1. Add `tests/integration/` directory
 2. Implement real Ollama tests:
    ```typescript
@@ -491,6 +527,7 @@ export class OllamaProviderPlugin {
 **Issue**: Generate mode `context` array is mentioned but usage pattern not fully documented.
 
 **Required Actions**:
+
 - Document how to preserve `context` between Generate requests
 - Show examples of stateful continuation
 - Clarify that this is NOT part of Holo format (out-of-band state)
@@ -505,6 +542,7 @@ export class OllamaProviderPlugin {
 **Issue**: Tension between stateless translator principle and `message_start` requirement.
 
 **Required Actions**:
+
 - Document architectural decision
 - Either: Relax stateless requirement for streaming orchestrators
 - Or: Handle `message_start` emission at higher layer
@@ -549,6 +587,7 @@ All streaming translators include `provider_delta: source` for round-trip fideli
 ### Migration Philosophy
 
 This plugin maintains the core translation logic from the monolithic architecture while:
+
 1. ✅ Using SDK types exclusively for public contracts
 2. ✅ Implementing plugin discovery and lifecycle
 3. ✅ Providing independent versioning
@@ -569,11 +608,13 @@ This plugin maintains the core translation logic from the monolithic architectur
 ### Reference Documentation
 
 **Primary**:
+
 - [SDK Provider Mappings](../../packages/sdk/docs/PROVIDER_MAPPINGS.md) - Authoritative mapping reference
 - [SDK Capability Analysis](../../packages/sdk/docs/CAPABILITY_ANALYSIS.md) - Type safety requirements
 - [SDK Holo Format](../../packages/sdk/docs/HOLO_FORMAT.md) - Format specification
 
 **Legacy** (Archived):
+
 - `src/providers/docs/archive/` - Original monolithic provider docs
 - Use SDK docs as source of truth; legacy docs for historical context only
 
@@ -582,6 +623,7 @@ This plugin maintains the core translation logic from the monolithic architectur
 ## Contributing
 
 When picking up a task:
+
 1. Check SDK documentation first for latest guidance
 2. Write tests before implementation
 3. Update README.md if adding features

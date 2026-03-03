@@ -5,7 +5,8 @@ import {OllamaOptionsTranslator} from "./ollama.options.translators";
 import {OllamaMessageTranslator} from "./ollama.message.translators";
 import {injectable} from 'tsyringe';
 import {BaseTranslator} from "@holokai/sdk/provider";
-import {HoloRequest, HoloRequestDefaults, HoloResponseFormat, pickDefined} from "@holokai/sdk";
+import {HoloRequestDefaults, pickDefined} from "@holokai/sdk";
+import type {HoloRequest, HoloResponseFormat} from "@holokai/types/holo";
 
 @injectable()
 export class OllamaChatRequestTranslator extends BaseTranslator<HoloRequest, OllamaChatRequest> {

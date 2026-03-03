@@ -1,8 +1,12 @@
 import {injectable} from 'tsyringe';
 import {OllamaChatRequest, OllamaGenerateRequest} from "./types";
-import {BaseAuditor, HoloWorkerRequest, pickDefined, ProviderEnvelope, ProviderEvent, RequestType} from "@holokai/sdk";
+import {BaseAuditor} from "@holokai/sdk/provider";
+import {pickDefined} from "@holokai/sdk";
+import {RequestType} from "@holokai/types/holo";
+import type {HoloWorkerRequest} from "@holokai/types/worker";
+import type {ProviderEnvelope, ProviderEvent} from "@holokai/types/provider";
+import type {LlmRequest} from "@holokai/types/entities";
 import {ChatRequest, ChatResponse, GenerateRequest, GenerateResponse} from "ollama";
-import {LlmRequest} from "@holokai/sdk/core/entities";
 
 @injectable()
 export class OllamaAuditor extends BaseAuditor {
@@ -64,6 +68,12 @@ export class OllamaAuditor extends BaseAuditor {
         });
     }
 
+    protected async createProviderEnvelope(payload: GenerateRequest | ChatRequest): Promise<ProviderEnvelope> {
+        return pickDefined({
+            model_slug: payload.model
+        }) as ProviderEnvelope;
+    }
+
     private extractUserPromptFromMessages(messages?: any[]): string | undefined {
         if (!messages || !Array.isArray(messages)) return undefined;
 
@@ -99,11 +109,5 @@ export class OllamaAuditor extends BaseAuditor {
             return Math.round(timeToFirstTokenNs / 1000000);
         }
         return undefined;
-    }
-
-    protected async createProviderEnvelope(payload: GenerateRequest | ChatRequest): Promise<ProviderEnvelope> {
-        return pickDefined({
-            model_slug: payload.model
-        }) as ProviderEnvelope;
     }
 }

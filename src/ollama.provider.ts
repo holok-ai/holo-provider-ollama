@@ -1,34 +1,18 @@
 import {ChatRequest, EmbedRequest, ErrorResponse, GenerateRequest, ListResponse, Ollama} from 'ollama';
-import {
-    BaseProvider,
+import {BaseProvider} from '@holokai/sdk/provider';
+import type {
     IAuditor,
     IProviderTranslator,
     IResponseFactory,
     ProviderContext,
-    RequestType,
     RunHandle
-} from '@holokai/sdk';
+} from '@holokai/types/provider';
+import {RequestType} from '@holokai/types/holo';
 import {OllamaAuditor} from './ollama.auditor';
 import {OllamaTranslator} from './ollama.translator';
 import {OllamaResponseFactory} from './ollama.response.factory';
 
 export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatRequest> {
-
-    protected createAuditor(): IAuditor {
-        return new OllamaAuditor();
-    }
-
-    protected createClient(): Ollama {
-        return new Ollama(this._config);
-    }
-
-    protected createTranslator(): IProviderTranslator {
-        return OllamaTranslator.instance();
-    }
-
-    protected createResponseFactory(): IResponseFactory {
-        return OllamaResponseFactory.instance();
-    }
 
     async getModelNameFromRequest(payload: GenerateRequest | ChatRequest): Promise<string> {
         return payload.model;
@@ -59,6 +43,22 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
                 }
             }
         }
+    }
+
+    protected createAuditor(): IAuditor {
+        return new OllamaAuditor();
+    }
+
+    protected createClient(): Ollama {
+        return new Ollama(this._config);
+    }
+
+    protected createTranslator(): IProviderTranslator {
+        return OllamaTranslator.instance();
+    }
+
+    protected createResponseFactory(): IResponseFactory {
+        return OllamaResponseFactory.instance();
     }
 
     protected async handleError(error: Error): Promise<ErrorResponse> {
