@@ -86,7 +86,7 @@ export class OllamaTranslator implements IProviderTranslator {
     }
 
     async fromHoloRequest(request: HoloRequest): Promise<Partial<OllamaChatRequest>> {
-        if (request.request_type === RequestType.GENERATE) {
+        if (request.capability === RequestType.GENERATE) {
             return this.ollamaGenerateRequestTranslator.fromHolo(request);
         }
         return this.ollamaChatRequestTranslator.fromHolo(request);

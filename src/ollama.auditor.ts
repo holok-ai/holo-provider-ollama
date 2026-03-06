@@ -5,46 +5,43 @@ import {pickDefined} from "@holokai/sdk";
 import {RequestType} from "@holokai/types/holo";
 import type {HoloWorkerRequest} from "@holokai/types/worker";
 import type {ProviderEnvelope, ProviderEvent} from "@holokai/types/provider";
-import type {LlmRequest} from "@holokai/types/entities";
+import type {ProviderRequest} from "@holokai/types/entities";
 import {ChatRequest, ChatResponse, GenerateRequest, GenerateResponse} from "ollama";
 
 @injectable()
 export class OllamaAuditor extends BaseAuditor {
     readonly provider = 'ollama';
 
-    protected toHoloRequest(workerRequest: HoloWorkerRequest, llmRequest: Omit<LlmRequest, 'id'>): void {
+    protected toHoloRequest(workerRequest: HoloWorkerRequest, llmRequest: Omit<ProviderRequest, 'id'>): void {
         const payload = workerRequest.payload as OllamaChatRequest | OllamaGenerateRequest;
 
-        // Set model
-        llmRequest.model_slug = payload.model;
+        llmRequest.access_model = payload.model;
 
-        // Set prompt/message content based on request type
         if (workerRequest.type === RequestType.CHAT) {
             const chatPayload = payload as OllamaChatRequest;
             const userPrompt = this.extractUserPromptFromMessages(chatPayload.messages);
             const systemPrompt = this.extractSystemPromptFromMessages(chatPayload.messages);
             if (userPrompt !== undefined) {
-                llmRequest.user_prompt = userPrompt;
+                llmRequest.metadata.user_prompt = userPrompt;
             }
             if (systemPrompt !== undefined) {
-                llmRequest.system_prompt = systemPrompt;
+                llmRequest.metadata.system_prompt = systemPrompt;
             }
         } else if (workerRequest.type === RequestType.GENERATE) {
             const generatePayload = payload as OllamaGenerateRequest;
             if (generatePayload.prompt !== undefined) {
-                llmRequest.user_prompt = generatePayload.prompt;
+                llmRequest.metadata.user_prompt = generatePayload.prompt;
             }
             if (generatePayload.system !== undefined) {
-                llmRequest.system_prompt = generatePayload.system;
+                llmRequest.metadata.system_prompt = generatePayload.system;
             }
         }
     }
 
-    protected mapProviderPayload(workerRequest: HoloWorkerRequest, llmRequest: Omit<LlmRequest, 'id'>): void {
+    protected mapProviderPayload(workerRequest: HoloWorkerRequest, llmRequest: Omit<ProviderRequest, 'id'>): void {
         const payload = workerRequest.payload as OllamaChatRequest | OllamaGenerateRequest;
-        // Set options
         if (payload.options !== undefined) {
-            llmRequest.options = payload.options;
+            llmRequest.metadata.options = payload.options;
         }
     }
 
@@ -70,7 +67,7 @@ export class OllamaAuditor extends BaseAuditor {
 
     protected async createProviderEnvelope(payload: GenerateRequest | ChatRequest): Promise<ProviderEnvelope> {
         return pickDefined({
-            model_slug: payload.model
+            access_model: payload.model
         }) as ProviderEnvelope;
     }
 

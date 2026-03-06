@@ -10,7 +10,7 @@ import {manifest} from "./manifest.js";
 import type {IProvider, IWireAdapter, ProviderCapabilities, WireAdapterParams} from "@holokai/types/provider";
 import {OllamaProvider} from "./ollama.provider";
 import {OllamaWireAdapter} from "./ollama.wire.adapter";
-import {RequestType} from "@holokai/types/holo";
+import {Capability} from "@holokai/types/holo";
 import type {RouteTree} from "@holokai/types/routing";
 import {RouteHandler} from "@holokai/types/routing";
 import {OllamaTranslator} from "./ollama.translator";
@@ -48,22 +48,27 @@ export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin 
             api: {
                 chat: {
                     method: 'POST',
-                    requestType: RequestType.CHAT,
-                    handler: RouteHandler.REQUEST
+                    handler: RouteHandler.REQUEST,
+                    protocol: 'chat',
+                    capability: Capability.CHAT
                 },
                 generate: {
                     method: 'POST',
-                    requestType: RequestType.GENERATE,
-                    handler: RouteHandler.REQUEST
+                    handler: RouteHandler.REQUEST,
+                    protocol: 'generate',
+                    capability: Capability.GENERATE
                 },
                 tags: {
                     method: 'GET',
-                    handler: RouteHandler.MODELS
+                    handler: RouteHandler.MODELS,
+                    protocol: 'models',
+                    capability: Capability.MODELS
                 },
                 embed: {
                     method: 'POST',
-                    requestType: RequestType.EMBED,
-                    handler: RouteHandler.REQUEST
+                    handler: RouteHandler.REQUEST,
+                    protocol: 'embeddings',
+                    capability: Capability.EMBED
                 }
             }
         }
