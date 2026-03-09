@@ -1,6 +1,6 @@
 # @holokai/holo-provider-ollama
 
-## 2.0.0
+## 1.1.0
 
 ### Minor Changes
 
@@ -24,7 +24,7 @@
 - fd64cb1: Moved app to separate workspace so that we can track with changeset.
 - Updated dependencies [af04a6e]
 - Updated dependencies [fd64cb1]
-  - @holokai/sdk@2.0.0
+  - @holokai/sdk@1.1.0
 
 ## 1.0.0
 
