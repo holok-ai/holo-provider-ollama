@@ -7,10 +7,10 @@ import type {
     ProviderContext,
     RunHandle
 } from '@holokai/types/provider';
-import {RequestType} from '@holokai/types/holo';
 import {OllamaAuditor} from './ollama.auditor';
 import {OllamaTranslator} from './ollama.translator';
 import {OllamaResponseFactory} from './ollama.response.factory';
+import {OllamaProtocols} from "./plugin";
 
 export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatRequest> {
 
@@ -66,12 +66,12 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
     }
 
     protected async handleRequest(payload: GenerateRequest | ChatRequest | EmbedRequest, ctx: ProviderContext): Promise<RunHandle<any>> {
-        switch (ctx.requestType) {
-            case RequestType.GENERATE:
+        switch (ctx.protocol.name) {
+            case OllamaProtocols.GENERATE:
                 return this.ollamaGenerate(payload as GenerateRequest, ctx);
-            case RequestType.CHAT:
+            case OllamaProtocols.CHAT:
                 return this.ollamaChat(payload as ChatRequest, ctx);
-            case RequestType.EMBED:
+            case OllamaProtocols.EMBED:
                 return this.ollamaEmbed(payload as EmbedRequest, ctx);
         }
         throw new Error(`Unsupported requestType: ${JSON.stringify(ctx)}`);

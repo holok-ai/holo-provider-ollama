@@ -10,26 +10,38 @@ import {manifest} from "./manifest.js";
 import type {IProvider, IWireAdapter, ProviderCapabilities, WireAdapterParams} from "@holokai/types/provider";
 import {OllamaProvider} from "./ollama.provider";
 import {OllamaWireAdapter} from "./ollama.wire.adapter";
-import {Capability} from "@holokai/types/holo";
 import type {RouteTree} from "@holokai/types/routing";
 import {RouteHandler} from "@holokai/types/routing";
 import {OllamaTranslator} from "./ollama.translator";
+import {ProtocolCapability} from "@holokai/types/entities";
+
+export const OllamaProtocols = {
+    EMBED: 'ollama.embed',
+    CHAT: 'ollama.chat',
+    GENERATE: 'ollama.generate',
+    MODELS: 'ollama.models'
+} as const;
+
+export type OllamaProtocols = typeof OllamaProtocols[keyof typeof OllamaProtocols];
+
 
 export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin {
     manifest = manifest;
     translator = OllamaTranslator.instance();
     defaultRouteHandler = RouteHandler.PASSTHROUGH;
+    protocols = OllamaProtocols;
+    defaultProtocol = OllamaProtocols.GENERATE;
 
-    async createProvider(config: any): Promise<IProvider> {
+    async createProvider(id: string, name: string, config: any): Promise<IProvider> {
         return new OllamaProvider(
-            this.name,
-            this.family,
-            this.version,
+            id,
+            name,
+            this,
             config
         );
     }
 
-    createWireAdapter(params: WireAdapterParams): IWireAdapter {
+    async createWireAdapter(params: WireAdapterParams): Promise<IWireAdapter> {
         return new OllamaWireAdapter(params.requestId, params.isStreaming);
     }
 
@@ -49,26 +61,34 @@ export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin 
                 chat: {
                     method: 'POST',
                     handler: RouteHandler.REQUEST,
-                    protocol: 'chat',
-                    capability: Capability.CHAT
+                    protocol: {
+                        name: OllamaProtocols.CHAT,
+                        capability: ProtocolCapability.CHAT
+                    }
                 },
                 generate: {
                     method: 'POST',
                     handler: RouteHandler.REQUEST,
-                    protocol: 'generate',
-                    capability: Capability.GENERATE
+                    protocol: {
+                        name: OllamaProtocols.GENERATE,
+                        capability: ProtocolCapability.GENERATE
+                    }
                 },
                 tags: {
                     method: 'GET',
                     handler: RouteHandler.MODELS,
-                    protocol: 'models',
-                    capability: Capability.MODELS
+                    protocol: {
+                        name: OllamaProtocols.MODELS,
+                        capability: ProtocolCapability.MODELS
+                    }
                 },
                 embed: {
                     method: 'POST',
                     handler: RouteHandler.REQUEST,
-                    protocol: 'embeddings',
-                    capability: Capability.EMBED
+                    protocol: {
+                        name: OllamaProtocols.EMBED,
+                        capability: ProtocolCapability.EMBED
+                    }
                 }
             }
         }

@@ -2,11 +2,11 @@ import {injectable} from 'tsyringe';
 import {OllamaChatRequest, OllamaGenerateRequest} from "./types";
 import {BaseAuditor} from "@holokai/sdk/provider";
 import {pickDefined} from "@holokai/sdk";
-import {RequestType} from "@holokai/types/holo";
 import type {HoloWorkerRequest} from "@holokai/types/worker";
 import type {ProviderEnvelope, ProviderEvent} from "@holokai/types/provider";
 import type {ProviderRequest} from "@holokai/types/entities";
 import {ChatRequest, ChatResponse, GenerateRequest, GenerateResponse} from "ollama";
+import {OllamaProtocols} from "./plugin";
 
 @injectable()
 export class OllamaAuditor extends BaseAuditor {
@@ -17,7 +17,7 @@ export class OllamaAuditor extends BaseAuditor {
 
         llmRequest.access_model = payload.model;
 
-        if (workerRequest.type === RequestType.CHAT) {
+        if (workerRequest.protocol.name === OllamaProtocols.CHAT) {
             const chatPayload = payload as OllamaChatRequest;
             const userPrompt = this.extractUserPromptFromMessages(chatPayload.messages);
             const systemPrompt = this.extractSystemPromptFromMessages(chatPayload.messages);
@@ -27,7 +27,7 @@ export class OllamaAuditor extends BaseAuditor {
             if (systemPrompt !== undefined) {
                 llmRequest.metadata.system_prompt = systemPrompt;
             }
-        } else if (workerRequest.type === RequestType.GENERATE) {
+        } else if (workerRequest.protocol.name === OllamaProtocols.GENERATE) {
             const generatePayload = payload as OllamaGenerateRequest;
             if (generatePayload.prompt !== undefined) {
                 llmRequest.metadata.user_prompt = generatePayload.prompt;

@@ -1,8 +1,7 @@
 import 'reflect-metadata';
 import {injectable} from "tsyringe";
 import type {IProviderTranslator} from "@holokai/types/provider";
-import type {HoloMessage, HoloRequest, HoloResponse, HoloStreamChunk} from "@holokai/types/holo";
-import {RequestType} from "@holokai/types/holo";
+import {HoloMessage, HoloRequest, HoloResponse, HoloStreamChunk, RequestType} from "@holokai/types/holo";
 import {
     OllamaChatRequestTranslator,
     OllamaChatResponseTranslator,
@@ -86,7 +85,7 @@ export class OllamaTranslator implements IProviderTranslator {
     }
 
     async fromHoloRequest(request: HoloRequest): Promise<Partial<OllamaChatRequest>> {
-        if (request.capability === RequestType.GENERATE) {
+        if (request.request_type === RequestType.GENERATE) {
             return this.ollamaGenerateRequestTranslator.fromHolo(request);
         }
         return this.ollamaChatRequestTranslator.fromHolo(request);
