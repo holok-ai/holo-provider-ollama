@@ -14,6 +14,7 @@ import type {RouteTree} from "@holokai/types/routing";
 import {RouteHandler} from "@holokai/types/routing";
 import {OllamaTranslator} from "./ollama.translator";
 import {ProtocolCapability} from "@holokai/types/entities";
+import type {PluginPricingSheet} from "@holokai/types/plugin";
 
 export const OllamaProtocols = {
     EMBED: 'ollama.embed',
@@ -92,6 +93,36 @@ export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin 
                 }
             }
         }
+    }
+
+    getDefaultPricing(): PluginPricingSheet {
+        return {
+            name: 'Ollama Local 2026-03',
+            version: '2026-03',
+            effective_from: '2026-03-01',
+            models: [
+                // All local models are $0 — no API costs
+                ...[
+                    // Llama
+                    'llama3:latest', 'llama-3.3-70b-instruct', 'llama3.3:70b-instruct-q4_0',
+                    'meta-llama-3.1-8b-instruct',
+
+                    // Gemma
+                    'gemma3:latest', 'gemma3:12b', 'gemma3:27b',
+                    'gemma-3-1b-it', 'gemma-3-12b-it', 'gemma-3-27b-it',
+
+                    // Mistral
+                    'mistral:latest', 'mistral-7b-instruct-v0.3', 'mistral-nemo-instruct-2407',
+                    'mistral-small-3.1-24b-instruct-2503', 'mistral-small:24b-instruct-2501-q8_0',
+
+                    // Qwen
+                    'qwq-32b', 'qwen3-coder-30b-a3b-instruct-mlx', 'qwen/qwen3-next-80b',
+
+                    // Embeddings
+                    'nomic-embed-text:latest', 'text-embedding-nomic-embed-text-v1.5',
+                ].map(m => ({model_name: m, input_cost: 0, output_cost: 0})),
+            ]
+        };
     }
 
     protected onInitialize(_context: PluginContext): Promise<void> {
