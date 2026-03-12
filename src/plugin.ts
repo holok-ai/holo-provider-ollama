@@ -5,16 +5,15 @@
  */
 
 import {BasePlugin} from '@holokai/sdk/plugin';
-import type {IProviderPlugin, PluginContext} from '@holokai/types/plugin';
+import type {IProviderPlugin, PluginContext, PluginPricingSheet} from '@holokai/types/plugin';
 import {manifest} from "./manifest.js";
 import type {IProvider, IWireAdapter, ProviderCapabilities, WireAdapterParams} from "@holokai/types/provider";
 import {OllamaProvider} from "./ollama.provider";
 import {OllamaWireAdapter} from "./ollama.wire.adapter";
-import type {RouteTree} from "@holokai/types/routing";
+import type {RouteDefinition} from "@holokai/types/routing";
 import {RouteHandler} from "@holokai/types/routing";
 import {OllamaTranslator} from "./ollama.translator";
 import {ProtocolCapability} from "@holokai/types/entities";
-import type {PluginPricingSheet} from "@holokai/types/plugin";
 
 export const OllamaProtocols = {
     EMBED: 'ollama.embed',
@@ -56,43 +55,46 @@ export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin 
         };
     }
 
-    getRoutes(): RouteTree {
-        return {
-            api: {
-                chat: {
-                    method: 'POST',
-                    handler: RouteHandler.REQUEST,
-                    protocol: {
-                        name: OllamaProtocols.CHAT,
-                        capability: ProtocolCapability.CHAT
-                    }
-                },
-                generate: {
-                    method: 'POST',
-                    handler: RouteHandler.REQUEST,
-                    protocol: {
-                        name: OllamaProtocols.GENERATE,
-                        capability: ProtocolCapability.GENERATE
-                    }
-                },
-                tags: {
-                    method: 'GET',
-                    handler: RouteHandler.MODELS,
-                    protocol: {
-                        name: OllamaProtocols.MODELS,
-                        capability: ProtocolCapability.MODELS
-                    }
-                },
-                embed: {
-                    method: 'POST',
-                    handler: RouteHandler.REQUEST,
-                    protocol: {
-                        name: OllamaProtocols.EMBED,
-                        capability: ProtocolCapability.EMBED
-                    }
+    getRoutes(): RouteDefinition[] {
+        return [
+            {
+                paths: ['/api/chat'],
+                method: 'POST',
+                handler: RouteHandler.REQUEST,
+                protocol: {
+                    name: OllamaProtocols.CHAT,
+                    capability: ProtocolCapability.CHAT
+                }
+            },
+            {
+                paths: ['/api/generate'],
+                method: 'POST',
+                handler: RouteHandler.REQUEST,
+                protocol: {
+                    name: OllamaProtocols.GENERATE,
+                    capability: ProtocolCapability.GENERATE
+                }
+            },
+            {
+                paths: ['/api/tags'],
+                method: 'GET',
+                handler: RouteHandler.MODELS,
+                protocol: {
+                    name: OllamaProtocols.MODELS,
+                    capability: ProtocolCapability.MODELS
+                }
+            },
+            {
+                paths: ['/api/embed'],
+                method: 'POST',
+                handler: RouteHandler.REQUEST,
+                protocol: {
+                    name: OllamaProtocols.EMBED,
+                    capability: ProtocolCapability.EMBED
                 }
             }
-        }
+
+        ];
     }
 
     getDefaultPricing(): PluginPricingSheet {

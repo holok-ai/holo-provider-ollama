@@ -98,12 +98,11 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
             const streamResp = await this.client.generate({...request, stream: true});
 
             for await (const chunk of streamResp) {
+                if (chunk.done) return chunk;
                 ctx.emitStreamEvent(chunk);
 
-                const token = chunk?.response ?? '';
+                const token = chunk.response ?? '';
                 if (token) ctx.emitTextDelta(token);
-
-                if (chunk?.done) return chunk;   // authoritative completion value
             }
 
             // If Ollama ends without a done flag
@@ -134,12 +133,11 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
             const streamResp = await this.client.chat({...request, stream: true});
 
             for await (const chunk of streamResp) {
+                if (chunk.done) return chunk;
                 ctx.emitStreamEvent(chunk);
 
-                const token = chunk?.message?.content ?? '';
+                const token = chunk.message.content ?? '';
                 if (token) ctx.emitTextDelta(token);
-
-                if (chunk?.done) return chunk;
             }
 
             return {done: true};
