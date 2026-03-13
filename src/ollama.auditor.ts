@@ -2,7 +2,7 @@ import {injectable} from 'tsyringe';
 import {OllamaChatRequest, OllamaGenerateRequest} from "./types";
 import {BaseAuditor} from "@holokai/sdk/provider";
 import {pickDefined} from "@holokai/sdk";
-import type {HoloWorkerRequest} from "@holokai/types/worker";
+import type {HoloWorkerRequest, WorkerResponseEnvelope} from "@holokai/types/worker";
 import type {ProviderEnvelope, ProviderEvent} from "@holokai/types/provider";
 import type {ProviderRequest} from "@holokai/types/entities";
 import {ChatRequest, ChatResponse, GenerateRequest, GenerateResponse} from "ollama";
@@ -45,8 +45,8 @@ export class OllamaAuditor extends BaseAuditor {
         }
     }
 
-    protected async mapResponseMetrics(providerEvent: Extract<ProviderEvent, { type: 'done' | 'error' }>) {
-        const metrics = await super.mapResponseMetrics(providerEvent);
+    protected async mapResponseMetrics(providerEvent: Extract<ProviderEvent, { type: 'done' | 'error' }>, envelope: WorkerResponseEnvelope) {
+        const metrics = await super.mapResponseMetrics(providerEvent, envelope);
         if (providerEvent.type === 'error') {
             return metrics;
         }
@@ -69,6 +69,10 @@ export class OllamaAuditor extends BaseAuditor {
         return pickDefined({
             access_model: payload.model
         }) as ProviderEnvelope;
+    }
+
+    protected extractExtraTokens(_metrics: Record<string, any>, base: Record<string, number>): Record<string, number> {
+        return base;
     }
 
     private extractUserPromptFromMessages(messages?: any[]): string | undefined {

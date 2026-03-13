@@ -127,6 +127,10 @@ export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin 
         };
     }
 
+    protected calculateExtraCosts(_tokens: Record<string, number>, _pricing: any) {
+        return {total: 0, detail: {}};
+    }
+
     protected onInitialize(_context: PluginContext): Promise<void> {
         return Promise.resolve();
     }
