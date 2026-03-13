@@ -94,22 +94,21 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
             };
         }
 
-        const finalPromise = (async () => {
-            const streamResp = await this.client.generate({...request, stream: true});
+        return {
+            final: async () => {
+                const streamResp = await this.client.generate({...request, stream: true});
 
-            for await (const chunk of streamResp) {
-                if (chunk.done) return chunk;
-                ctx.emitStreamEvent(chunk);
+                for await (const chunk of streamResp) {
+                    if (chunk.done) return chunk;
+                    ctx.emitStreamEvent(chunk);
 
-                const token = chunk.response ?? '';
-                if (token) ctx.emitTextDelta(token);
+                    const token = chunk.response ?? '';
+                    if (token) ctx.emitTextDelta(token);
+                }
+
+                return {done: true};
             }
-
-            // If Ollama ends without a done flag
-            return {done: true};
-        })();
-
-        return {final: () => finalPromise};
+        };
     }
 
     private async ollamaChat(request: ChatRequest, ctx: ProviderContext): Promise<RunHandle<any>> {
@@ -129,21 +128,21 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
             };
         }
 
-        const finalPromise = (async () => {
-            const streamResp = await this.client.chat({...request, stream: true});
+        return {
+            final: async () => {
+                const streamResp = await this.client.chat({...request, stream: true});
 
-            for await (const chunk of streamResp) {
-                if (chunk.done) return chunk;
-                ctx.emitStreamEvent(chunk);
+                for await (const chunk of streamResp) {
+                    if (chunk.done) return chunk;
+                    ctx.emitStreamEvent(chunk);
 
-                const token = chunk.message.content ?? '';
-                if (token) ctx.emitTextDelta(token);
+                    const token = chunk.message.content ?? '';
+                    if (token) ctx.emitTextDelta(token);
+                }
+
+                return {done: true};
             }
-
-            return {done: true};
-        })();
-
-        return {final: () => finalPromise};
+        };
     }
 
 }

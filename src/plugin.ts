@@ -97,6 +97,11 @@ export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin 
         ];
     }
 
+    getPricingSheets(): Map<string, PluginPricingSheet> {
+        const sheet = this.getDefaultPricing();
+        return new Map([[sheet.version, sheet]]);
+    }
+
     getDefaultPricing(): PluginPricingSheet {
         return {
             name: 'Ollama Local 2026-03',
