@@ -121,8 +121,13 @@ created: source.created_at ? Date.parse(source.created_at) : undefined  // ✅ M
 {
     id: /* synthesized or reused */,
     model: source.model,
-    created: source.created_at ? Date.parse(source.created_at) : undefined,  // ✅ Convert to ms
-    delta: { /* ... */ }
+        created
+:
+    source.created_at ? Date.parse(source.created_at) : undefined,  // ✅ Convert to ms
+        delta
+:
+    { /* ... */
+    }
 }
 ```
 
@@ -260,7 +265,7 @@ export class OllamaStreamTranslator extends BaseStreamTranslator {
                 delta: {
                     provider: 'ollama',
                     type: 'message_start',
-                    delta: { role: 'assistant' },
+                    delta: {role: 'assistant'},
                     provider_delta: source
                 }
             });

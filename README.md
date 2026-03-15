@@ -74,15 +74,15 @@ Add a provider configuration to your Holo deployment:
 ### Usage in Code
 
 ```typescript
-import { HoloRequest, HoloResponse } from '@holokai/sdk';
+import {HoloRequest, HoloResponse} from '@holokai/sdk';
 
 const request: HoloRequest = {
-  model: 'llama2',
-  messages: [
-    { role: 'user', content: 'Explain quantum entanglement briefly.' }
-  ],
-  max_tokens: 500,
-  temperature: 0.7
+    model: 'llama2',
+    messages: [
+        {role: 'user', content: 'Explain quantum entanglement briefly.'}
+    ],
+    max_tokens: 500,
+    temperature: 0.7
 };
 
 // Plugin handles translation automatically
@@ -296,13 +296,23 @@ This plugin implements the official Holo format mappings as documented in the SD
 
 ```typescript
 // Holo
-{ type: 'text', text: 'Hello' }
+{
+    type: 'text', text
+:
+    'Hello'
+}
 
 // Ollama Chat (flattened)
-{ role: 'user', content: 'Hello' }
+{
+    role: 'user', content
+:
+    'Hello'
+}
 
 // Ollama Generate (string)
-{ prompt: 'Hello' }
+{
+    prompt: 'Hello'
+}
 ```
 
 #### Image Content
@@ -310,18 +320,24 @@ This plugin implements the official Holo format mappings as documented in the SD
 ```typescript
 // Holo
 {
-  role: 'user',
-  content: [
-    { type: 'text', text: 'What is in this image?' },
-    { type: 'image', url: 'https://example.com/image.png' }
-  ]
+    role: 'user',
+        content
+:
+    [
+        {type: 'text', text: 'What is in this image?'},
+        {type: 'image', url: 'https://example.com/image.png'}
+    ]
 }
 
 // Ollama Chat (extracted to images array)
 {
-  role: 'user',
-  content: 'What is in this image?',
-  images: ['https://example.com/image.png']
+    role: 'user',
+        content
+:
+    'What is in this image?',
+        images
+:
+    ['https://example.com/image.png']
 }
 
 // Ollama Generate (NOT SUPPORTED)
@@ -426,31 +442,66 @@ Ollama uses a simpler frame-based streaming model compared to Claude's event-bas
 ```typescript
 // Frame 1: First content
 {
-  model: 'llama2',
-  created_at: '2024-01-01T12:00:00Z',
-  message: { role: 'assistant', content: 'Hello' },  // Chat mode
-  // response: 'Hello',                              // Generate mode
-  done: false
+    model: 'llama2',
+        created_at
+:
+    '2024-01-01T12:00:00Z',
+        message
+:
+    {
+        role: 'assistant', content
+    :
+        'Hello'
+    }
+,  // Chat mode
+    // response: 'Hello',                              // Generate mode
+    done: false
 }
 
 // Frame 2: More content
 {
-  model: 'llama2',
-  created_at: '2024-01-01T12:00:01Z',
-  message: { role: 'assistant', content: ' there' },
-  done: false
+    model: 'llama2',
+        created_at
+:
+    '2024-01-01T12:00:01Z',
+        message
+:
+    {
+        role: 'assistant', content
+    :
+        ' there'
+    }
+,
+    done: false
 }
 
 // Frame 3: Final frame with usage
 {
-  model: 'llama2',
-  created_at: '2024-01-01T12:00:02Z',
-  message: { role: 'assistant', content: '!' },
-  done: true,
-  done_reason: 'stop',
-  prompt_eval_count: 10,
-  eval_count: 3,
-  total_duration: 1500000000  // nanoseconds
+    model: 'llama2',
+        created_at
+:
+    '2024-01-01T12:00:02Z',
+        message
+:
+    {
+        role: 'assistant', content
+    :
+        '!'
+    }
+,
+    done: true,
+        done_reason
+:
+    'stop',
+        prompt_eval_count
+:
+    10,
+        eval_count
+:
+    3,
+        total_duration
+:
+    1500000000  // nanoseconds
 }
 ```
 
@@ -499,12 +550,12 @@ Control how long models stay in memory:
 
 ```typescript
 const request: HoloRequest = {
-  model: 'llama2',
-  messages: [{ role: 'user', content: 'Hello' }],
-  provider_config: {
-    keep_alive: '5m'  // Keep model loaded for 5 minutes
-    // or: keep_alive: 300  // 300 seconds
-  }
+    model: 'llama2',
+    messages: [{role: 'user', content: 'Hello'}],
+    provider_config: {
+        keep_alive: '5m'  // Keep model loaded for 5 minutes
+        // or: keep_alive: 300  // 300 seconds
+    }
 };
 ```
 
@@ -514,15 +565,15 @@ Configure GPU and NUMA settings:
 
 ```typescript
 const request: HoloRequest = {
-  model: 'llama2',
-  messages: [{ role: 'user', content: 'Hello' }],
-  provider_config: {
-    options: {
-      num_gpu: 1,        // Number of GPUs to use
-      main_gpu: 0,       // Primary GPU index
-      numa: true         // Enable NUMA optimization
+    model: 'llama2',
+    messages: [{role: 'user', content: 'Hello'}],
+    provider_config: {
+        options: {
+            num_gpu: 1,        // Number of GPUs to use
+            main_gpu: 0,       // Primary GPU index
+            numa: true         // Enable NUMA optimization
+        }
     }
-  }
 };
 ```
 
@@ -532,13 +583,13 @@ Override model's default context size:
 
 ```typescript
 const request: HoloRequest = {
-  model: 'llama2',
-  messages: [{ role: 'user', content: 'Hello' }],
-  provider_config: {
-    options: {
-      num_ctx: 4096  // Override context window
+    model: 'llama2',
+    messages: [{role: 'user', content: 'Hello'}],
+    provider_config: {
+        options: {
+            num_ctx: 4096  // Override context window
+        }
     }
-  }
 };
 ```
 
@@ -548,12 +599,12 @@ Skip prompt formatting in Generate mode:
 
 ```typescript
 const request: HoloRequest = {
-  model: 'llama2',
-  messages: [{ role: 'user', content: 'Raw prompt text' }],
-  provider_config: {
-    mode: 'generate',
-    raw: true  // Skip Ollama's prompt template
-  }
+    model: 'llama2',
+    messages: [{role: 'user', content: 'Raw prompt text'}],
+    provider_config: {
+        mode: 'generate',
+        raw: true  // Skip Ollama's prompt template
+    }
 };
 ```
 
@@ -593,10 +644,10 @@ interface HoloTool {
 **After** (Plugin SDK):
 
 ```typescript
-import type { HoloTool, HoloJsonSchema } from '@holokai/sdk';
+import type {HoloTool, HoloJsonSchema} from '@holokai/sdk';
 
 interface HoloTool {
-  parameters?: HoloJsonSchema; // ✅ Strict JSON Schema Draft 7
+    parameters?: HoloJsonSchema; // ✅ Strict JSON Schema Draft 7
 }
 ```
 
@@ -612,13 +663,13 @@ The plugin exposes a JSON Schema for configuration validation:
 
 ```typescript
 {
-  baseUrl?: string;            // Ollama endpoint (default: http://localhost:11434)
-  defaultModel?: string;       // Fallback model (e.g., "llama2")
-  allowedModels?: string[];    // Model allowlist
-  timeoutMs?: number;          // Request timeout (default: 60000)
-  maxRetries?: number;         // Retry attempts (default: 2)
-  defaultKeepAlive?: string;   // Default keep_alive ("5m", 300)
-  logRequests?: boolean;       // Observability (default: false)
+    baseUrl ? : string;            // Ollama endpoint (default: http://localhost:11434)
+    defaultModel ? : string;       // Fallback model (e.g., "llama2")
+    allowedModels ? : string[];    // Model allowlist
+    timeoutMs ? : number;          // Request timeout (default: 60000)
+    maxRetries ? : number;         // Retry attempts (default: 2)
+    defaultKeepAlive ? : string;   // Default keep_alive ("5m", 300)
+    logRequests ? : boolean;       // Observability (default: false)
 }
 ```
 
