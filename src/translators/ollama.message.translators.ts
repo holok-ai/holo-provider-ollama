@@ -82,7 +82,8 @@ export class OllamaMessageTranslator extends BaseTranslator<HoloMessage, OllamaM
                     texts.push(t);
                 }
             } else if (part.type === "image") {
-                images.push(part.url);
+                if (part.url) images.push(part.url);
+                else if (part.data) images.push(part.data);
             }
         }
 

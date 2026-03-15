@@ -22,7 +22,7 @@ export class OllamaChatResponseTranslator extends BaseTranslator<HoloResponse, O
     // ---------- Implementations ----------
     protected async fromHoloImpl(source: HoloResponse): Promise<Partial<OllamaChatResponse>> {
         // Build a single assistant message from the last assistant message in Holo (or synthesize empty)
-        const holoMsgs = source.messages ?? [];
+        const holoMsgs = source.output ?? [];
         const lastAssistant: HoloMessage | undefined =
             [...holoMsgs].reverse().find(m => m.role === 'assistant');
 
@@ -48,16 +48,16 @@ export class OllamaChatResponseTranslator extends BaseTranslator<HoloResponse, O
         const holoAssistant = await this.messageTranslator.toHolo(source.message);
 
         // Ensure we produce a Holo message array; omit empty content when possible
-        const messages: HoloMessage[] = [];
+        const output: HoloMessage[] = [];
         if (Object.keys(holoAssistant).length) {
-            messages.push(holoAssistant as HoloMessage);
+            output.push(holoAssistant as HoloMessage);
         }
 
         const usage = this.mapUsageToHolo(source);
 
         return pickDefined({
             model: source.model,
-            messages: messages.length ? messages : undefined,
+            output: output.length ? output : undefined,
             created: source.created_at ? new Date(source.created_at).getTime() : undefined,
             finish_reason: this.mapFinishReasonToHolo(source.done_reason),
             usage,

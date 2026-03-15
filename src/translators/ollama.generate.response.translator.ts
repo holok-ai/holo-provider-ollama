@@ -19,7 +19,7 @@ export class OllamaGenerateResponseTranslator extends BaseTranslator<HoloRespons
     }
 
     protected async fromHoloImpl(source: HoloResponse): Promise<Partial<OllamaGenerateResponse>> {
-        const firstMessage = source.messages?.[0];
+        const firstMessage = source.output?.[0];
         const responseText = typeof firstMessage?.content === 'string'
             ? firstMessage.content
             : Array.isArray(firstMessage?.content)
@@ -49,7 +49,7 @@ export class OllamaGenerateResponseTranslator extends BaseTranslator<HoloRespons
         return pickDefined({
             model: source.model,
             created: source.created_at,
-            messages: [message],
+            output: [message],
             finish_reason: this.mapFinishReasonToHolo(source.done_reason),
             usage
         }) as Partial<HoloResponse>;
