@@ -15,12 +15,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/holokai/holo-provider-ollama.git"
+    "url": "git+https://github.com/holok-ai/holo-provider-ollama.git"
   },
   "bugs": {
-    "url": "https://github.com/holokai/holo-provider-ollama/issues"
+    "url": "https://github.com/holok-ai/holo-provider-ollama/issues"
   },
-  "homepage": "https://github.com/holokai/holo-provider-ollama#readme",
+  "homepage": "https://github.com/holok-ai/holo-provider-ollama#readme",
   "keywords": [
     "holokai",
     "holo",
