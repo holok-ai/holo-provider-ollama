@@ -30,7 +30,7 @@ export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin 
     translator = OllamaTranslator.instance();
     defaultRouteHandler = RouteHandler.PASSTHROUGH;
     protocols = OllamaProtocols;
-    defaultProtocol = OllamaProtocols.GENERATE;
+    defaultProtocol = OllamaProtocols.CHAT;
 
     async createProvider(id: string, name: string, config: any): Promise<IProvider> {
         return new OllamaProvider(
@@ -43,6 +43,11 @@ export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin 
 
     async createWireAdapter(params: WireAdapterParams): Promise<IWireAdapter> {
         return new OllamaWireAdapter(params.requestId, params.isStreaming);
+    }
+
+    getProtocolByCapability(capability: ProtocolCapability): string | undefined {
+        const route = this.getRoutes().find(r => r.protocol.capability === capability);
+        return route?.protocol.name;
     }
 
     getCapabilities(): ProviderCapabilities {
