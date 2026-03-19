@@ -12,9 +12,9 @@ import {OllamaTranslator} from './ollama.translator';
 import {OllamaResponseFactory} from './ollama.response.factory';
 import {OllamaProtocols} from "./plugin";
 
-export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatRequest> {
+export class OllamaProvider extends BaseProvider<Ollama, EmbedRequest | GenerateRequest | ChatRequest> {
 
-    async getModelNameFromRequest(payload: GenerateRequest | ChatRequest): Promise<string> {
+    async getModelNameFromRequest(payload: EmbedRequest | GenerateRequest | ChatRequest): Promise<string> {
         return payload.model;
     }
 
@@ -32,15 +32,10 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
         }
     }
 
-    async ollamaEmbed(payload: EmbedRequest, _ctx: ProviderContext) {
+    async ollamaEmbed(payload: EmbedRequest) {
         return {
-            final: async () => {
-                try {
-                    return await this.client.embed(payload);
-                } catch (error) {
-                    this.log.error(`Ollama embed error: ${error instanceof Error ? error.message : String(error)}`);
-                    throw error;
-                }
+            start: async () => {
+                return await this.client.embed(payload);
             }
         }
     }
@@ -65,14 +60,14 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
         return {error: error.message}
     }
 
-    protected async handleRequest(payload: GenerateRequest | ChatRequest | EmbedRequest, ctx: ProviderContext): Promise<RunHandle<any>> {
+    protected async createRequestRunner(payload: GenerateRequest | ChatRequest | EmbedRequest, ctx: ProviderContext): Promise<RunHandle<any>> {
         switch (ctx.protocol.name) {
             case OllamaProtocols.GENERATE:
                 return this.ollamaGenerate(payload as GenerateRequest, ctx);
             case OllamaProtocols.CHAT:
                 return this.ollamaChat(payload as ChatRequest, ctx);
             case OllamaProtocols.EMBED:
-                return this.ollamaEmbed(payload as EmbedRequest, ctx);
+                return this.ollamaEmbed(payload as EmbedRequest);
         }
         throw new Error(`Unsupported requestType: ${JSON.stringify(ctx)}`);
     }
@@ -80,22 +75,16 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
     private async ollamaGenerate(request: GenerateRequest, ctx: ProviderContext): Promise<RunHandle<any>> {
         if (!request.stream) {
             return {
-                final: async () => {
-                    try {
-                        return await this.client.generate({...request, stream: false /* ensure */});
-                    } catch (error) {
-                        this.log.error(`Ollama generate error: ${error instanceof Error ? error.message : String(error)}`, {
-                            config: JSON.stringify(this._config),
-                            request: JSON.stringify(request)
-                        });
-                        throw error;
-                    }
+                start: async () => {
+                    const result = await this.client.generate({...request, stream: false /* ensure */});
+                    ctx.emitTextDelta(result.response);
+                    return result;
                 },
             };
         }
 
         return {
-            final: async () => {
+            start: async () => {
                 const streamResp = await this.client.generate({...request, stream: true});
 
                 for await (const chunk of streamResp) {
@@ -114,22 +103,16 @@ export class OllamaProvider extends BaseProvider<Ollama, GenerateRequest | ChatR
     private async ollamaChat(request: ChatRequest, ctx: ProviderContext): Promise<RunHandle<any>> {
         if (!request.stream) {
             return {
-                final: async () => {
-                    try {
-                        return await this.client.chat({...request, stream: false});
-                    } catch (error) {
-                        this.log.error(`Ollama chat error: ${error instanceof Error ? error.message : String(error)}`, {
-                            config: JSON.stringify(this._config),
-                            request: JSON.stringify(request)
-                        });
-                        throw error;
-                    }
+                start: async () => {
+                    const result = await this.client.chat({...request, stream: false});
+                    ctx.emitTextDelta(result.message.content);
+                    return result;
                 },
             };
         }
 
         return {
-            final: async () => {
+            start: async () => {
                 const streamResp = await this.client.chat({...request, stream: true});
 
                 for await (const chunk of streamResp) {

@@ -12,6 +12,17 @@
       "ESNext.Intl"
     ]
   },
+  "paths": {
+    "@holokai/types": [
+      "../types/src/index.ts"
+    ],
+    "@holokai/sdk": [
+      "../sdk/src/index.ts"
+    ],
+    "@holokai/sdk/provider": [
+      "../sdk/src/provider/index.ts"
+    ]
+  },
   "include": [
     "src/**/*"
   ],

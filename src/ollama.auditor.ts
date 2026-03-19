@@ -1,116 +1,96 @@
 import {injectable} from 'tsyringe';
 import {OllamaChatRequest, OllamaGenerateRequest} from "./types";
-import {BaseAuditor} from "@holokai/sdk/provider";
-import {pickDefined} from "@holokai/sdk";
+import {BaseAuditor, extractPromptByRole, extractTextContent, normalizeText} from "@holokai/sdk/provider";
+import {nsToMs, pickDefined} from "@holokai/sdk";
 import type {HoloWorkerRequest, WorkerResponseEnvelope} from "@holokai/types/worker";
-import type {ProviderEnvelope, ProviderEvent} from "@holokai/types/provider";
-import type {ProviderRequest} from "@holokai/types/entities";
-import {ChatRequest, ChatResponse, GenerateRequest, GenerateResponse} from "ollama";
+import type {ProviderDoneEvent, ProviderEvent} from "@holokai/types/provider";
+import type {ProviderEnvelope, ProviderResponseMetrics} from "@holokai/types/entities";
+import {FinishReason} from "@holokai/types/entities";
+import {ChatRequest, ChatResponse, EmbedRequest, GenerateRequest, GenerateResponse} from "ollama";
 import {OllamaProtocols} from "./plugin";
 
 @injectable()
 export class OllamaAuditor extends BaseAuditor {
     readonly provider = 'ollama';
 
-    protected toHoloRequest(workerRequest: HoloWorkerRequest, llmRequest: Omit<ProviderRequest, 'id'>): void {
-        const payload = workerRequest.payload as OllamaChatRequest | OllamaGenerateRequest;
-
-        llmRequest.access_model = payload.model;
-
-        if (workerRequest.protocol.name === OllamaProtocols.CHAT) {
-            const chatPayload = payload as OllamaChatRequest;
-            const userPrompt = this.extractUserPromptFromMessages(chatPayload.messages);
-            const systemPrompt = this.extractSystemPromptFromMessages(chatPayload.messages);
-            if (userPrompt !== undefined) {
-                llmRequest.metadata.user_prompt = userPrompt;
-            }
-            if (systemPrompt !== undefined) {
-                llmRequest.metadata.system_prompt = systemPrompt;
-            }
-        } else if (workerRequest.protocol.name === OllamaProtocols.GENERATE) {
-            const generatePayload = payload as OllamaGenerateRequest;
-            if (generatePayload.prompt !== undefined) {
-                llmRequest.metadata.user_prompt = generatePayload.prompt;
-            }
-            if (generatePayload.system !== undefined) {
-                llmRequest.metadata.system_prompt = generatePayload.system;
-            }
+    protected async extractRequestOptions(workerRequest: HoloWorkerRequest): Promise<Record<string, any>> {
+        return {
+            ...(workerRequest.payload as EmbedRequest | OllamaChatRequest | OllamaGenerateRequest).options
         }
     }
 
-    protected mapProviderPayload(workerRequest: HoloWorkerRequest, llmRequest: Omit<ProviderRequest, 'id'>): void {
-        const payload = workerRequest.payload as OllamaChatRequest | OllamaGenerateRequest;
-        if (payload.options !== undefined) {
-            llmRequest.metadata.options = payload.options;
-        }
-    }
-
-    protected async mapResponseMetrics(providerEvent: Extract<ProviderEvent, {
-        type: 'done' | 'error'
-    }>, envelope: WorkerResponseEnvelope) {
-        const metrics = await super.mapResponseMetrics(providerEvent, envelope);
-        if (providerEvent.type === 'error') {
-            return metrics;
-        }
-
+    protected async mapProviderResponseMetrics(providerEvent: ProviderDoneEvent) {
         const payload = providerEvent.message as ChatResponse | GenerateResponse;
-        const usage = {
-            input_tokens: payload.prompt_eval_count || metrics.input_tokens,
-            output_tokens: payload.eval_count || metrics.output_tokens,
-            time_to_first_token: this.calculateTimeToFirstToken(payload) || metrics.time_to_first_token,
-            total_processing_time: payload.total_duration ? Math.round(payload.total_duration / 1000000) : metrics.total_processing_time
+
+        const {load_duration, eval_count, prompt_eval_count, prompt_eval_duration, total_duration} = payload;
+
+        return pickDefined({
+            input_tokens: prompt_eval_count,
+            output_tokens: eval_count,
+            total_tokens: eval_count + prompt_eval_count,
+            time_to_first_token: load_duration != null && prompt_eval_duration != null ? Math.round(nsToMs(load_duration + prompt_eval_duration)) : undefined,
+            total_processing_time: total_duration != null ? Math.round(nsToMs(total_duration)) : undefined,
+            usage_raw: {
+                load_duration,
+                prompt_eval_duration,
+                total_duration,
+                eval_count,
+                prompt_eval_count
+            },
+            metadata: {
+                load_duration,
+                prompt_eval_duration
+            }
+        }) as Partial<ProviderResponseMetrics>;
+    }
+
+    protected async extractFinishReason(providerEvent: ProviderEvent, _envelope: WorkerResponseEnvelope): Promise<FinishReason | undefined> {
+        if (providerEvent.type === 'error') return FinishReason.ERROR;
+        if (providerEvent.type !== 'done') return undefined;
+
+        const doneReason = providerEvent.message?.done_reason;
+        switch (doneReason) {
+            case 'stop':
+                return FinishReason.STOP;
+            case 'load':
+                return FinishReason.ERROR;
+            case 'length':
+                return FinishReason.LENGTH;
+            default:
+                return FinishReason.STOP;
+        }
+    }
+
+    protected async createProviderEnvelope(workerRequest: HoloWorkerRequest): Promise<ProviderEnvelope> {
+        const payload = workerRequest.payload as ChatRequest | GenerateRequest;
+        let last_user_prompt;
+        let system_prompt;
+
+        if (workerRequest.protocol.name === OllamaProtocols.GENERATE) {
+            const generatePayload = (payload as GenerateRequest)
+            last_user_prompt = normalizeText(generatePayload.prompt);
+            system_prompt = generatePayload.system ? normalizeText(generatePayload.system) : generatePayload.system;
+        } else {
+            const chatPayload = (payload as ChatRequest);
+            last_user_prompt = extractPromptByRole(
+                chatPayload.messages,
+                "user",
+                "last",
+                (msg) => extractTextContent(msg.content),
+            )
+
+            system_prompt = extractPromptByRole(
+                chatPayload.messages,
+                "system",
+                "first",
+                (msg) => extractTextContent(msg.content),
+            );
         }
 
         return pickDefined({
-            usage_raw: usage,
-            ...usage
-        });
-    }
-
-    protected async createProviderEnvelope(payload: GenerateRequest | ChatRequest): Promise<ProviderEnvelope> {
-        return pickDefined({
-            access_model: payload.model
+            access_model: payload.model,
+            last_user_prompt,
+            system_prompt
         }) as ProviderEnvelope;
-    }
-
-    protected extractExtraTokens(_metrics: Record<string, any>, base: Record<string, number>): Record<string, number> {
-        return base;
-    }
-
-    private extractUserPromptFromMessages(messages?: any[]): string | undefined {
-        if (!messages || !Array.isArray(messages)) return undefined;
-
-        const userMessages = messages.filter(msg => msg.role === 'user');
-        if (userMessages.length === 0) return undefined;
-
-        // Return the last user message content
-        const lastUserMessage = userMessages[userMessages.length - 1];
-        return typeof lastUserMessage.content === 'string' ? lastUserMessage.content : undefined;
-    }
-
-    private extractSystemPromptFromMessages(messages?: any[]): string | undefined {
-        if (!messages || !Array.isArray(messages)) return undefined;
-
-        const systemMessage = messages.find(msg => msg.role === 'system');
-        return systemMessage && typeof systemMessage.content === 'string' ? systemMessage.content : undefined;
-    }
-
-    /**
-     * Calculate time to first token using Ollama's timing data
-     * Time to first token = load_duration + prompt_eval_duration
-     * This represents the time spent loading the model and evaluating the prompt before generating the first token
-     * @param payload - Ollama response payload with timing information
-     * @returns Time to first token in milliseconds, or undefined if timing data is unavailable
-     */
-    private calculateTimeToFirstToken(payload: any): number | undefined {
-        const loadDuration = payload.load_duration;
-        const promptEvalDuration = payload.prompt_eval_duration;
-
-        if (loadDuration !== undefined && promptEvalDuration !== undefined) {
-            // Convert nanoseconds to milliseconds and sum the durations
-            const timeToFirstTokenNs = loadDuration + promptEvalDuration;
-            return Math.round(timeToFirstTokenNs / 1000000);
-        }
-        return undefined;
     }
 }
