@@ -10,18 +10,19 @@
     "lib": [
       "ESNext",
       "ESNext.Intl"
-    ]
-  },
-  "paths": {
-    "@holokai/types": [
-      "../types/src/index.ts"
     ],
-    "@holokai/sdk": [
-      "../sdk/src/index.ts"
-    ],
-    "@holokai/sdk/provider": [
-      "../sdk/src/provider/index.ts"
-    ]
+    "baseUrl": ".",
+    "paths": {
+      "@holokai/types": [
+        "../../packages/types/src/index.ts"
+      ],
+      "@holokai/sdk": [
+        "../../packages/sdk/src/index.ts"
+      ],
+      "@holokai/sdk/provider": [
+        "../../packages/sdk/src/provider/index.ts"
+      ]
+    }
   },
   "include": [
     "src/**/*"
@@ -33,10 +34,10 @@
   ],
   "references": [
     {
-      "path": "../types"
+      "path": "../../packages/types"
     },
     {
-      "path": "../sdk"
+      "path": "../../packages/sdk"
     }
   ]
 }
