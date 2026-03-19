@@ -1,5 +1,5 @@
 import type {FixtureScenario} from '@holokai/test-harness';
-import {LlmStatus} from '@holokai/types/entities';
+import {ProviderResponseStatus} from '@holokai/types/entities';
 
 const chunk1 = {
     model: 'llama3.2',
@@ -51,7 +51,7 @@ const fixture: FixtureScenario = {
         access_model: 'llama3.2',
         input_tokens: 10,
         output_tokens: 6,
-        status: LlmStatus.SUCCESS,
+        status: ProviderResponseStatus.SUCCESS,
     },
 
     tags: ['chat', 'streaming'],
