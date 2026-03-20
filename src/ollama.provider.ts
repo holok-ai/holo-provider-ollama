@@ -1,12 +1,12 @@
 import {ChatRequest, EmbedRequest, ErrorResponse, GenerateRequest, ListResponse, Ollama} from 'ollama';
-import {BaseProvider} from '@holokai/sdk/provider';
+import {BaseProvider} from '@holokai/holo-sdk/provider';
 import type {
     IAuditor,
     IProviderTranslator,
     IResponseFactory,
     ProviderContext,
     RunHandle
-} from '@holokai/types/provider';
+} from '@holokai/holo-types/provider';
 import {OllamaAuditor} from './ollama.auditor';
 import {OllamaTranslator} from './ollama.translator';
 import {OllamaResponseFactory} from './ollama.response.factory';

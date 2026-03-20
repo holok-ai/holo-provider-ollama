@@ -12,7 +12,7 @@
 
 - [x] Extract provider logic from monolith to plugin package
 - [x] Create plugin manifest with configuration schema
-- [x] Migrate to `@holokai/sdk` imports
+- [x] Migrate to `@holokai/holo-sdk` imports
 - [x] Implement `ProviderPlugin` contract
 - [x] Add auto-discovery support
 - [x] Preserve dual mode support (Chat + Generate)
@@ -42,7 +42,7 @@
 - `src/translators/streaming/ollama.message.stop.translator.ts`
 
 **Issue**: Ollama responses lack stable `id` fields.
-Per [SDK Provider Mappings](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#ollama--holo-responses), translators MUST
+Per [SDK Provider Mappings](../../packages/holo-sdk/docs/PROVIDER_MAPPINGS.md#ollama--holo-responses), translators MUST
 synthesize UUIDs.
 
 **Required Action**:
@@ -67,7 +67,7 @@ const holoResponse: HoloResponse = {
 - Requires state tracking or passing ID through context
 
 **Reference
-**: [SDK Provider Mappings - Ollama ID Synthesis](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#ollama--holo-responses)
+**: [SDK Provider Mappings - Ollama ID Synthesis](../../packages/holo-sdk/docs/PROVIDER_MAPPINGS.md#ollama--holo-responses)
 
 **Impact**: HoloResponse/HoloStreamChunk missing required `id` field
 
@@ -95,7 +95,7 @@ created: source.created_at ? Date.parse(source.created_at) : undefined  // ✅ M
 ```
 
 **Reference
-**: [SDK Provider Mappings - Timestamp Normalization](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#ollama--holo-responses)
+**: [SDK Provider Mappings - Timestamp Normalization](../../packages/holo-sdk/docs/PROVIDER_MAPPINGS.md#ollama--holo-responses)
 
 **Note**: Chat response translator already correctly uses `new Date(source.created_at).getTime()` ✓
 
@@ -132,7 +132,7 @@ created: source.created_at ? Date.parse(source.created_at) : undefined  // ✅ M
 ```
 
 **Reference
-**: [SDK Capability Analysis - Timestamp Normalization](../../packages/sdk/docs/CAPABILITY_ANALYSIS.md#timestamp-normalization)
+**: [SDK Capability Analysis - Timestamp Normalization](../../packages/holo-sdk/docs/CAPABILITY_ANALYSIS.md#timestamp-normalization)
 
 **Impact**: Missing timestamps in streaming events
 
@@ -149,7 +149,7 @@ created: source.created_at ? Date.parse(source.created_at) : undefined  // ✅ M
 - `src/translators/streaming/ollama.message.delta.translator.ts`
 - `src/translators/streaming/ollama.message.stop.translator.ts`
 
-**Issue**: Per [SDK Provider Mappings](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#ollama--holo-responses), should
+**Issue**: Per [SDK Provider Mappings](../../packages/holo-sdk/docs/PROVIDER_MAPPINGS.md#ollama--holo-responses), should
 default to `'stop'` when `done=true && !done_reason`. Current mappers return `null` for missing reasons.
 
 **Required Action**: Modify `mapFinishReasonToHolo` methods:
@@ -187,7 +187,7 @@ HoloFinishReason | null
 ```
 
 **Reference
-**: [SDK Provider Mappings - Finish Reason Mapping](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#finish-reason-mappings)
+**: [SDK Provider Mappings - Finish Reason Mapping](../../packages/holo-sdk/docs/PROVIDER_MAPPINGS.md#finish-reason-mappings)
 
 **Impact**: Missing finish_reason in completed responses
 
@@ -213,7 +213,7 @@ if (source.tool_choice) {
 }
 ```
 
-**Reference**: [SDK Provider Mappings - Tool Choice](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#tool-choice)
+**Reference**: [SDK Provider Mappings - Tool Choice](../../packages/holo-sdk/docs/PROVIDER_MAPPINGS.md#tool-choice)
 
 **Impact**: Observability for debugging; users unaware feature is unsupported
 
@@ -228,7 +228,7 @@ if (source.tool_choice) {
 **File**: `src/translators/streaming/ollama.stream.translator.ts`
 **Lines**: ~30-56 (`toHoloManyImpl`)
 
-**Issue**: Per [SDK Provider Mappings](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#streaming-mappings), orchestrator
+**Issue**: Per [SDK Provider Mappings](../../packages/holo-sdk/docs/PROVIDER_MAPPINGS.md#streaming-mappings), orchestrator
 must emit `message_start` on first frame. Ollama has no explicit start event.
 
 **Problem**: Orchestrator is currently stateless, cannot track "first frame".
@@ -296,8 +296,8 @@ export class OllamaStreamTranslator extends BaseStreamTranslator {
 
 **Reference**:
 
-- [SDK Streaming Docs](../../packages/sdk/docs/README.md#streaming)
-- [Provider Mappings - Ollama Streaming](../../packages/sdk/docs/PROVIDER_MAPPINGS.md#ollama-streaming-completion)
+- [SDK Streaming Docs](../../packages/holo-sdk/docs/README.md#streaming)
+- [Provider Mappings - Ollama Streaming](../../packages/holo-sdk/docs/PROVIDER_MAPPINGS.md#ollama-streaming-completion)
 
 **Impact**: Missing `message_start` event; consumers expect it per Holo spec
 
@@ -315,7 +315,7 @@ export class OllamaStreamTranslator extends BaseStreamTranslator {
 
 **Current State**:
 
-- Plugin imports from `@holokai/sdk` for public APIs
+- Plugin imports from `@holokai/holo-sdk` for public APIs
 - Internal translators may still use legacy type patterns
 - Need audit of all `Record<string, unknown>` instances
 
@@ -330,12 +330,12 @@ export class OllamaStreamTranslator extends BaseStreamTranslator {
 2. **Replace with SDK types**:
     - Tool parameters: Use `HoloJsonSchema` instead of `Record<string, unknown>`
     - Tool arguments: Use `HoloFunctionArguments` instead of flexible types
-    - All Holo types: Import from `@holokai/sdk`
+    - All Holo types: Import from `@holokai/holo-sdk`
 
 3. **Update validators** to match SDK types
 
 **Reference
-**: [SDK Capability Analysis - Type Safety](../../packages/sdk/docs/CAPABILITY_ANALYSIS.md#type-safety-analysis)
+**: [SDK Capability Analysis - Type Safety](../../packages/holo-sdk/docs/CAPABILITY_ANALYSIS.md#type-safety-analysis)
 
 **Impact**: Critical for type safety compliance with Holo spec
 
@@ -406,8 +406,8 @@ export class OllamaStreamTranslator extends BaseStreamTranslator {
    ```
 
 4. **Add validation tests per SDK docs**:
-    - See [SDK README Testing Section](../../packages/sdk/docs/README.md#testing)
-    - Verify all mappings from [Provider Mappings](../../packages/sdk/docs/PROVIDER_MAPPINGS.md)
+    - See [SDK README Testing Section](../../packages/holo-sdk/docs/README.md#testing)
+    - Verify all mappings from [Provider Mappings](../../packages/holo-sdk/docs/PROVIDER_MAPPINGS.md)
 
 **Impact**: Confidence in migration completeness and SDK compliance
 
@@ -600,7 +600,7 @@ This plugin maintains the core translation logic from the monolithic architectur
 
 ### SDK Compliance Checklist
 
-- [x] Uses `@holokai/sdk` imports
+- [x] Uses `@holokai/holo-sdk` imports
 - [ ] No `Record<string, unknown>` in production paths (#SDK-1)
 - [ ] No `any` types in production paths (#SDK-1)
 - [ ] ID synthesis in all responses (#CRITICAL-1)
@@ -614,9 +614,9 @@ This plugin maintains the core translation logic from the monolithic architectur
 
 **Primary**:
 
-- [SDK Provider Mappings](../../packages/sdk/docs/PROVIDER_MAPPINGS.md) - Authoritative mapping reference
-- [SDK Capability Analysis](../../packages/sdk/docs/CAPABILITY_ANALYSIS.md) - Type safety requirements
-- [SDK Holo Format](../../packages/sdk/docs/HOLO_FORMAT.md) - Format specification
+- [SDK Provider Mappings](../../packages/holo-sdk/docs/PROVIDER_MAPPINGS.md) - Authoritative mapping reference
+- [SDK Capability Analysis](../../packages/holo-sdk/docs/CAPABILITY_ANALYSIS.md) - Type safety requirements
+- [SDK Holo Format](../../packages/holo-sdk/docs/HOLO_FORMAT.md) - Format specification
 
 **Legacy** (Archived):
 
@@ -632,7 +632,7 @@ When picking up a task:
 1. Check SDK documentation first for latest guidance
 2. Write tests before implementation
 3. Update README.md if adding features
-4. Ensure all types come from `@holokai/sdk`
+4. Ensure all types come from `@holokai/holo-sdk`
 5. Add integration tests for user-facing changes
 
 ---

@@ -1,4 +1,4 @@
-import type {IResponseFactory} from "@holokai/types/provider";
+import type {IResponseFactory} from "@holokai/holo-types/provider";
 import {ErrorResponse} from "ollama";
 
 export class OllamaResponseFactory implements IResponseFactory {

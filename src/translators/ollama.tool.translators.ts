@@ -1,9 +1,9 @@
 import 'reflect-metadata';
 import {OllamaTool} from "../types";
 import {injectable} from 'tsyringe';
-import {pickDefined} from "@holokai/sdk";
-import {BaseTranslator} from "@holokai/sdk/provider";
-import type {HoloTool} from "@holokai/types/holo";
+import {pickDefined} from "@holokai/holo-sdk";
+import {BaseTranslator} from "@holokai/holo-sdk/provider";
+import type {HoloTool} from "@holokai/holo-types/holo";
 
 @injectable()
 export class OllamaToolTranslator extends BaseTranslator<HoloTool, OllamaTool> {

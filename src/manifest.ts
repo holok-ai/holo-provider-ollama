@@ -1,4 +1,4 @@
-import {PluginManifest, PluginType} from "@holokai/types/plugin";
+import {PluginManifest, PluginType} from "@holokai/holo-types/plugin";
 import {createRequire} from 'module';
 
 const require = createRequire(import.meta.url);

@@ -15,7 +15,7 @@ providing complete bidirectional translation between Ollama's native API and the
 
 ### Key Features
 
-- ✅ **Full Holo SDK Integration** - Uses `@holokai/sdk` types for strict type safety
+- ✅ **Full Holo SDK Integration** - Uses `@holokai/holo-sdk` types for strict type safety
 - ✅ **Bidirectional Translation** - Ollama ↔ Holo format with lossless core fields
 - ✅ **Dual Mode Support** - Both Chat and Generate endpoints
 - ✅ **Streaming Support** - Frame-based streaming with proper orchestration
@@ -36,7 +36,7 @@ npm install @holokai/holo-provider-ollama
 
 This plugin requires:
 
-- `@holokai/sdk` ^0.1.0 - Holo universal format types and plugin contracts
+- `@holokai/holo-sdk` ^0.1.0 - Holo universal format types and plugin contracts
 - `ollama` ^0.6.3 - Official Ollama JavaScript SDK
 
 ### Prerequisites
@@ -74,7 +74,7 @@ Add a provider configuration to your Holo deployment:
 ### Usage in Code
 
 ```typescript
-import {HoloRequest, HoloResponse} from '@holokai/sdk';
+import {HoloRequest, HoloResponse} from '@holokai/holo-sdk';
 
 const request: HoloRequest = {
     model: 'llama2',
@@ -132,7 +132,7 @@ src/providers/ollama/
 
 ### Breaking Changes
 
-- **Import paths changed**: Use `@holokai/sdk` for types instead of `../../types`
+- **Import paths changed**: Use `@holokai/holo-sdk` for types instead of `../../types`
 - **Configuration schema**: Now validated via plugin manifest
 - **Dependency injection**: Uses plugin container instead of core DI
 
@@ -518,7 +518,7 @@ The plugin translates Ollama frames to Holo streaming events:
 ### Streaming Example
 
 ```typescript
-import { HoloStreamChunk } from '@holokai/sdk';
+import { HoloStreamChunk } from '@holokai/holo-sdk';
 
 const stream = await ollamaProvider.streamChat(request);
 
@@ -623,7 +623,7 @@ import type {
   HoloMessage,
   HoloTool,
   HoloJsonSchema
-} from '@holokai/sdk';
+} from '@holokai/holo-sdk';
 
 // ❌ NO: Record<string, unknown>
 // ✅ YES: Proper SDK types
@@ -644,7 +644,7 @@ interface HoloTool {
 **After** (Plugin SDK):
 
 ```typescript
-import type {HoloTool, HoloJsonSchema} from '@holokai/sdk';
+import type {HoloTool, HoloJsonSchema} from '@holokai/holo-sdk';
 
 interface HoloTool {
     parameters?: HoloJsonSchema; // ✅ Strict JSON Schema Draft 7
@@ -653,7 +653,7 @@ interface HoloTool {
 
 ### Type Safety
 
-All interfaces use strict TypeScript types from `@holokai/sdk` for compile-time validation.
+All interfaces use strict TypeScript types from `@holokai/holo-sdk` for compile-time validation.
 
 ---
 
@@ -762,7 +762,7 @@ chunks in a session.
 
 ### SDK Documentation
 
-- [SDK README](../sdk/README.md) - Plugin development guide and templates
+- [SDK README](../holo-sdk/README.md) - Plugin development guide and templates
 
 ### Ollama Documentation
 
@@ -782,7 +782,7 @@ chunks in a session.
 
 ### Adding Features
 
-1. Update types in `@holokai/sdk` first (if needed)
+1. Update types in `@holokai/holo-sdk` first (if needed)
 2. Implement translator logic
 3. Write tests (unit + integration)
 4. Update this README

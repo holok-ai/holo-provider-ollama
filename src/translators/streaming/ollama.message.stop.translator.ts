@@ -1,9 +1,9 @@
 import 'reflect-metadata';
 import {injectable} from 'tsyringe';
 import {OllamaChatResponse, OllamaGenerateResponse} from '../../types';
-import {pickDefined} from "@holokai/sdk";
-import {StreamTranslator} from "@holokai/sdk/provider";
-import type {HoloFinishReason, HoloStreamChunk} from "@holokai/types/holo";
+import {pickDefined} from "@holokai/holo-sdk";
+import {StreamTranslator} from "@holokai/holo-sdk/provider";
+import type {HoloFinishReason, HoloStreamChunk} from "@holokai/holo-types/holo";
 
 type OllamaStreamResponse = Partial<OllamaChatResponse> | Partial<OllamaGenerateResponse>;
 

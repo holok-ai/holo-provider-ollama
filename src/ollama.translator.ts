@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import {injectable} from "tsyringe";
-import type {IProviderTranslator} from "@holokai/types/provider";
-import {HoloMessage, HoloRequest, HoloResponse, HoloStreamChunk} from "@holokai/types/holo";
+import type {IProviderTranslator} from "@holokai/holo-types/provider";
+import {HoloMessage, HoloRequest, HoloResponse, HoloStreamChunk} from "@holokai/holo-types/holo";
 import {
     OllamaChatRequestTranslator,
     OllamaChatResponseTranslator,

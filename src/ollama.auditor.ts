@@ -1,11 +1,11 @@
 import {injectable} from 'tsyringe';
 import {OllamaChatRequest, OllamaGenerateRequest} from "./types";
-import {BaseAuditor, extractPromptByRole, extractTextContent, normalizeText} from "@holokai/sdk/provider";
-import {nsToMs, pickDefined} from "@holokai/sdk";
-import type {HoloWorkerRequest, WorkerResponseEnvelope} from "@holokai/types/worker";
-import type {ProviderDoneEvent, ProviderEvent} from "@holokai/types/provider";
-import type {ProviderEnvelope, ProviderResponseMetrics} from "@holokai/types/entities";
-import {FinishReason} from "@holokai/types/entities";
+import {BaseAuditor, extractPromptByRole, extractTextContent, normalizeText} from "@holokai/holo-sdk/provider";
+import {nsToMs, pickDefined} from "@holokai/holo-sdk";
+import type {HoloWorkerRequest, WorkerResponseEnvelope} from "@holokai/holo-types/worker";
+import type {ProviderDoneEvent, ProviderEvent} from "@holokai/holo-types/provider";
+import type {ProviderEnvelope, ProviderResponseMetrics} from "@holokai/holo-types/entities";
+import {FinishReason} from "@holokai/holo-types/entities";
 import {ChatRequest, ChatResponse, EmbedRequest, GenerateRequest, GenerateResponse} from "ollama";
 import {OllamaProtocols} from "./plugin";
 

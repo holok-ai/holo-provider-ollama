@@ -2,9 +2,9 @@ import 'reflect-metadata';
 import {OllamaChatResponse} from "../types";
 import {injectable} from 'tsyringe';
 import {OllamaMessageTranslator} from "./ollama.message.translators";
-import {BaseTranslator} from "@holokai/sdk/provider";
-import {pickDefined} from "@holokai/sdk";
-import type {HoloFinishReason, HoloMessage, HoloResponse, HoloUsage} from "@holokai/types/holo";
+import {BaseTranslator} from "@holokai/holo-sdk/provider";
+import {pickDefined} from "@holokai/holo-sdk";
+import type {HoloFinishReason, HoloMessage, HoloResponse, HoloUsage} from "@holokai/holo-types/holo";
 
 /**
  * Translator for Ollama Chat API responses.

@@ -4,16 +4,16 @@
  * Implements IProviderPlugin contract for Ollama API
  */
 
-import {BasePlugin} from '@holokai/sdk/plugin';
-import type {IProviderPlugin, PluginContext, PluginPricingSheet} from '@holokai/types/plugin';
+import {BasePlugin} from '@holokai/holo-sdk/plugin';
+import type {IProviderPlugin, PluginContext, PluginPricingSheet} from '@holokai/holo-types/plugin';
 import {manifest} from "./manifest.js";
-import type {IProvider, IWireAdapter, ProviderCapabilities, WireAdapterParams} from "@holokai/types/provider";
+import type {IProvider, IWireAdapter, ProviderCapabilities, WireAdapterParams} from "@holokai/holo-types/provider";
 import {OllamaProvider} from "./ollama.provider";
 import {OllamaWireAdapter} from "./ollama.wire.adapter";
-import type {RouteDefinition} from "@holokai/types/routing";
-import {RouteHandler} from "@holokai/types/routing";
+import type {RouteDefinition} from "@holokai/holo-types/routing";
+import {RouteHandler} from "@holokai/holo-types/routing";
 import {OllamaTranslator} from "./ollama.translator";
-import {ProtocolCapability} from "@holokai/types/entities";
+import {ProtocolCapability} from "@holokai/holo-types/entities";
 
 export const OllamaProtocols = {
     EMBED: 'ollama.embed',
