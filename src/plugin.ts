@@ -68,7 +68,11 @@ export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin 
                 handler: RouteHandler.REQUEST,
                 protocol: {
                     name: OllamaProtocols.CHAT,
-                    capability: ProtocolCapability.CHAT
+                    capability: ProtocolCapability.CHAT,
+                    streamEventSequence: {
+                        ordered: ['content_delta', 'message_delta', 'message_stop'],
+                        repeatable: ['content_delta'],
+                    }
                 }
             },
             {

@@ -1,4 +1,4 @@
-import type {FixtureScenario} from '@holokai/test-sdk';
+import type {FixtureScenario} from '@holokai/holo-test';
 import {ProviderResponseStatus} from '@holokai/holo-types/entities';
 
 const chunk1 = {

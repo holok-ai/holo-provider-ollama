@@ -1,5 +1,5 @@
 import {describe, it} from 'vitest';
-import {runAuditContract} from '@holokai/test-sdk';
+import {runAuditContract} from '@holokai/holo-test';
 import chatStreaming from '../fixtures/chat-simple.streaming.fixture.js';
 import chatNonStreaming from '../fixtures/chat-simple.nonstreaming.fixture.js';
 
