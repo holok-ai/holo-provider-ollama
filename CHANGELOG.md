@@ -1,5 +1,11 @@
 # @holokai/holo-provider-ollama
 
+## 1.4.0
+
+### Minor Changes
+
+- Rename test-sdk to holo-test, move plugin loader to holo-sdk, add ProviderProtocol and StreamEventSequence types, add streamEventSequence to all plugin CHAT routes, add live integration test infrastructure.
+
 ## 1.3.2
 
 ### Patch Changes
