@@ -1,5 +1,11 @@
 # @holokai/holo-provider-ollama
 
+## 1.5.0
+
+### Minor Changes
+
+- Add multi-capability SDK support: generate, embed, and metrics namespaces on HoloClient, generalized protocol resolution, auditor mapFinishReason/mapUsage with per-plugin overrides, and new holo-types for embed/generate/metrics/models.
+
 ## 1.4.0
 
 ### Minor Changes
