@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import {injectable} from "tsyringe";
 import type {IProviderTranslator} from "@holokai/holo-types/provider";
-import {HoloMessage, HoloRequest, HoloResponse, HoloStreamChunk} from "@holokai/holo-types/holo";
+import {HoloEmbedParams, HoloGenerateParams, HoloMessage, HoloRequest, HoloResponse, HoloStreamChunk} from "@holokai/holo-types/holo";
 import {
     OllamaChatRequestTranslator,
     OllamaChatResponseTranslator,
@@ -105,5 +105,25 @@ export class OllamaTranslator implements IProviderTranslator {
 
     async fromHoloStreamChunks(chunks: HoloStreamChunk[]): Promise<unknown> {
         return this.ollamaStreamTranslator.fromHoloManyArray(chunks);
+    }
+
+    async fromHoloGenerateRequest(request: HoloGenerateParams): Promise<any> {
+        return {
+            model: request.model,
+            prompt: request.prompt,
+            stream: request.stream ?? false,
+        };
+    }
+
+    async fromHoloEmbedRequest(request: HoloEmbedParams): Promise<any> {
+        return {
+            model: request.model,
+            input: request.input,
+        };
+    }
+
+    async toHoloEmbedResponse(response: any): Promise<{ model: string; embeddings: number[][]; usage?: any }> {
+        const model = response?.model ?? '';
+        return {model, embeddings: response?.embeddings ?? []};
     }
 }

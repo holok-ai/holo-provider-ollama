@@ -6,6 +6,7 @@ import type {HoloWorkerRequest, WorkerResponseEnvelope} from "@holokai/holo-type
 import type {ProviderDoneEvent, ProviderEvent} from "@holokai/holo-types/provider";
 import type {ProviderEnvelope, ProviderResponseMetrics} from "@holokai/holo-types/entities";
 import {FinishReason} from "@holokai/holo-types/entities";
+import type {HoloFinishReason, HoloUsage} from "@holokai/holo-types/holo";
 import {ChatRequest, ChatResponse, EmbedRequest, GenerateRequest, GenerateResponse} from "ollama";
 import {OllamaProtocols} from "./plugin";
 
@@ -19,15 +20,47 @@ export class OllamaAuditor extends BaseAuditor {
         }
     }
 
+    override mapFinishReason(nativeResponse: any, _protocolName?: string): HoloFinishReason {
+        if (!nativeResponse) return 'stop';
+        const doneReason = nativeResponse.done_reason;
+        switch (doneReason) {
+            case 'stop':
+                return 'stop';
+            case 'load':
+                return 'error';
+            case 'length':
+                return 'length';
+            default:
+                return 'stop';
+        }
+    }
+
+    override mapUsage(nativeResponse: any, _protocolName?: string): HoloUsage {
+        if (!nativeResponse) return {};
+        const {prompt_eval_count, eval_count, load_duration, prompt_eval_duration, total_duration} = nativeResponse;
+        const usage: HoloUsage = pickDefined({
+            input_tokens: prompt_eval_count,
+            output_tokens: eval_count,
+            total_tokens: (eval_count ?? 0) + (prompt_eval_count ?? 0) || undefined,
+        });
+        if (load_duration != null || total_duration != null) {
+            const timings: NonNullable<HoloUsage['timings']> = {};
+            if (total_duration != null) timings.total = Math.round(nsToMs(total_duration));
+            if (load_duration != null) timings.load = Math.round(nsToMs(load_duration));
+            if (prompt_eval_duration != null) timings.prompt_eval = Math.round(nsToMs(prompt_eval_duration));
+            usage.timings = timings;
+        }
+        return usage;
+    }
+
     protected async mapProviderResponseMetrics(providerEvent: ProviderDoneEvent) {
         const payload = providerEvent.message as ChatResponse | GenerateResponse;
-
         const {load_duration, eval_count, prompt_eval_count, prompt_eval_duration, total_duration} = payload;
 
         return pickDefined({
             input_tokens: prompt_eval_count,
             output_tokens: eval_count,
-            total_tokens: eval_count + prompt_eval_count,
+            total_tokens: (eval_count ?? 0) + (prompt_eval_count ?? 0) || undefined,
             time_to_first_token: load_duration != null && prompt_eval_duration != null ? Math.round(nsToMs(load_duration + prompt_eval_duration)) : undefined,
             total_processing_time: total_duration != null ? Math.round(nsToMs(total_duration)) : undefined,
             usage_raw: {
@@ -47,18 +80,7 @@ export class OllamaAuditor extends BaseAuditor {
     protected async extractFinishReason(providerEvent: ProviderEvent, _envelope: WorkerResponseEnvelope): Promise<FinishReason | undefined> {
         if (providerEvent.type === 'error') return FinishReason.ERROR;
         if (providerEvent.type !== 'done') return undefined;
-
-        const doneReason = providerEvent.message?.done_reason;
-        switch (doneReason) {
-            case 'stop':
-                return FinishReason.STOP;
-            case 'load':
-                return FinishReason.ERROR;
-            case 'length':
-                return FinishReason.LENGTH;
-            default:
-                return FinishReason.STOP;
-        }
+        return this.mapFinishReason(providerEvent.message) as FinishReason;
     }
 
     protected async createProviderEnvelope(workerRequest: HoloWorkerRequest): Promise<ProviderEnvelope> {
