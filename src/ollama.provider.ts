@@ -1,6 +1,7 @@
 import {ChatRequest, EmbedRequest, ErrorResponse, GenerateRequest, ListResponse, Ollama} from 'ollama';
 import {BaseProvider} from '@holokai/holo-sdk/provider';
 import type {
+    DiscoveredModel,
     IAuditor,
     IProviderTranslator,
     IResponseFactory,
@@ -16,6 +17,26 @@ export class OllamaProvider extends BaseProvider<Ollama, EmbedRequest | Generate
 
     async getModelNameFromRequest(payload: EmbedRequest | GenerateRequest | ChatRequest): Promise<string> {
         return payload.model;
+    }
+
+    async discoverModels(): Promise<DiscoveredModel[]> {
+        const response = await this.client.list();
+        return response.models.map(m => {
+            const name = m.name;
+            const modelName = name.split(':')[0];
+            return {
+                name,
+                accessModel: name,
+                description: `${modelName} (Model ID: ${name})`,
+                version: name.match(/-(\d+\.\d+(?:\.\d+)?)/)?.[1] ?? '1.0',
+                metadata: {
+                    name: m.name,
+                    size: m.size,
+                    digest: m.digest,
+                    details: m.details,
+                },
+            };
+        });
     }
 
     async getModels(allowedModels: string[] | true): Promise<ListResponse> {
