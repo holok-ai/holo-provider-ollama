@@ -1,5 +1,11 @@
 # @holokai/holo-provider-ollama
 
+## 1.6.0
+
+### Patch Changes
+
+- Add multi-source ETL pipeline with model dictionary matching, stub removal, and canonicalization. New entity types for model dictionary, aliases, and match results. New normalize/matching utilities in SDK. Remove stub behavior from model dictionary. Add LiteLLM and models.dev sources with per-field precedence canonicalization.
+
 ## 1.5.0
 
 ### Minor Changes
