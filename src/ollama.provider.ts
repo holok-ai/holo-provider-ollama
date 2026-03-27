@@ -137,7 +137,12 @@ export class OllamaProvider extends BaseProvider<Ollama, EmbedRequest | Generate
                 const streamResp = await this.client.chat({...request, stream: true});
 
                 for await (const chunk of streamResp) {
-                    if (chunk.done) return chunk;
+                    if (chunk.done) {
+                        // Emit any remaining content from the final chunk before returning
+                        const finalToken = chunk.message?.content ?? '';
+                        if (finalToken) ctx.emitTextDelta(finalToken);
+                        return chunk;
+                    }
                     ctx.emitStreamEvent(chunk);
 
                     const token = chunk.message.content ?? '';
