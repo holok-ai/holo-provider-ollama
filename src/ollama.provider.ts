@@ -121,12 +121,25 @@ export class OllamaProvider extends BaseProvider<Ollama, EmbedRequest | Generate
         };
     }
 
+    private emitOllamaToolCalls(toolCalls: Array<{ function?: { name: string; arguments: any } }>, ctx: ProviderContext): void {
+        for (let i = 0; i < toolCalls.length; i++) {
+            const fn = toolCalls[i].function;
+            if (!fn) continue;
+            const argsStr = typeof fn.arguments === 'string' ? fn.arguments : JSON.stringify(fn.arguments);
+            ctx.emitToolCallDelta(i, {name: fn.name});
+            ctx.emitToolCallDelta(i, {arguments_delta: argsStr});
+        }
+    }
+
     private async ollamaChat(request: ChatRequest, ctx: ProviderContext): Promise<RunHandle<any>> {
         if (!request.stream) {
             return {
                 start: async () => {
                     const result = await this.client.chat({...request, stream: false});
                     ctx.emitTextDelta(result.message.content);
+                    if (result.message.tool_calls?.length) {
+                        this.emitOllamaToolCalls(result.message.tool_calls, ctx);
+                    }
                     return result;
                 },
             };
@@ -138,12 +151,18 @@ export class OllamaProvider extends BaseProvider<Ollama, EmbedRequest | Generate
 
                 for await (const chunk of streamResp) {
                     if (chunk.done) {
-                        // Emit any remaining content from the final chunk before returning
                         const finalToken = chunk.message?.content ?? '';
                         if (finalToken) ctx.emitTextDelta(finalToken);
+                        if (chunk.message?.tool_calls?.length) {
+                            this.emitOllamaToolCalls(chunk.message.tool_calls, ctx);
+                        }
                         return chunk;
                     }
                     ctx.emitStreamEvent(chunk);
+
+                    if (chunk.message?.tool_calls?.length) {
+                        this.emitOllamaToolCalls(chunk.message.tool_calls, ctx);
+                    }
 
                     const token = chunk.message.content ?? '';
                     if (token) ctx.emitTextDelta(token);
