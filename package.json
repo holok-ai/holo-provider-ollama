@@ -47,7 +47,7 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "build": "tsc --build",
+    "build": "node ../../scripts/generate-version.mjs src/version.ts && tsc --build",
     "build:watch": "tsc --build --watch",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "type-check": "tsc --noEmit",

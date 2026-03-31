@@ -1,12 +1,9 @@
 import {PluginManifest, PluginType} from "@holokai/holo-types/plugin";
-import {createRequire} from 'module';
-
-const require = createRequire(import.meta.url);
-const {version} = require('../package.json');
+import {VERSION} from './version';
 
 export const manifest: PluginManifest = {
     name: '@holokai/provider-ollama',
-    version,
+    version: VERSION,
     pluginType: PluginType.PROVIDER,
     family: 'ollama',
     displayName: 'Ollama Provider',
