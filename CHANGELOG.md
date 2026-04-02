@@ -1,5 +1,11 @@
 # @holokai/holo-provider-ollama
 
+## 1.4.4
+
+### Patch Changes
+
+- Plugin distribution redesign: API as sole authority, event-driven provider refresh, dev hot-reload. Prefer provider-reported token counts over tiktoken. Build-time version generation. Fix AIO shutdown double pool.end().
+
 ## 1.4.0
 
 ### Minor Changes
