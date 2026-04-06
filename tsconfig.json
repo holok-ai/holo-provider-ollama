@@ -13,24 +13,60 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@holokai/holo-types": ["../../packages/holo-types/src/index.ts"],
-      "@holokai/holo-types/holo": ["../../packages/holo-types/src/holo/index.ts"],
-      "@holokai/holo-types/entities": ["../../packages/holo-types/src/entities/index.ts"],
-      "@holokai/holo-types/config": ["../../packages/holo-types/src/config/index.ts"],
-      "@holokai/holo-types/worker": ["../../packages/holo-types/src/worker/index.ts"],
-      "@holokai/holo-types/notification": ["../../packages/holo-types/src/notification/index.ts"],
-      "@holokai/holo-types/routing": ["../../packages/holo-types/src/routing/index.ts"],
-      "@holokai/holo-types/api": ["../../packages/holo-types/src/api/index.ts"],
-      "@holokai/holo-types/provider": ["../../packages/holo-types/src/provider/index.ts"],
-      "@holokai/holo-types/logger": ["../../packages/holo-types/src/logger/index.ts"],
-      "@holokai/holo-types/plugin": ["../../packages/holo-types/src/plugin/index.ts"],
-      "@holokai/holo-sdk": ["../../packages/holo-sdk/src/index.ts"],
-      "@holokai/holo-sdk/core": ["../../packages/holo-sdk/src/core/index.ts"],
-      "@holokai/holo-sdk/plugin": ["../../packages/holo-sdk/src/plugin/index.ts"],
-      "@holokai/holo-sdk/provider": ["../../packages/holo-sdk/src/provider/index.ts"],
-      "@holokai/holo-sdk/holo": ["../../packages/holo-sdk/src/holo/index.ts"],
-      "@holokai/holo-sdk/notification": ["../../packages/holo-sdk/src/notification/index.ts"],
-      "@holokai/holo-sdk/client": ["../../packages/holo-sdk/src/client/index.ts"]
+      "@holokai/holo-types": [
+        "../../packages/holo-types/src/index.ts"
+      ],
+      "@holokai/holo-types/holo": [
+        "../../packages/holo-types/src/holo/index.ts"
+      ],
+      "@holokai/holo-types/entities": [
+        "../../packages/holo-types/src/entities/index.ts"
+      ],
+      "@holokai/holo-types/config": [
+        "../../packages/holo-types/src/config/index.ts"
+      ],
+      "@holokai/holo-types/worker": [
+        "../../packages/holo-types/src/worker/index.ts"
+      ],
+      "@holokai/holo-types/notification": [
+        "../../packages/holo-types/src/notification/index.ts"
+      ],
+      "@holokai/holo-types/routing": [
+        "../../packages/holo-types/src/routing/index.ts"
+      ],
+      "@holokai/holo-types/api": [
+        "../../packages/holo-types/src/api/index.ts"
+      ],
+      "@holokai/holo-types/provider": [
+        "../../packages/holo-types/src/provider/index.ts"
+      ],
+      "@holokai/holo-types/logger": [
+        "../../packages/holo-types/src/logger/index.ts"
+      ],
+      "@holokai/holo-types/plugin": [
+        "../../packages/holo-types/src/plugin/index.ts"
+      ],
+      "@holokai/holo-sdk": [
+        "../../packages/holo-sdk/src/index.ts"
+      ],
+      "@holokai/holo-sdk/core": [
+        "../../packages/holo-sdk/src/core/index.ts"
+      ],
+      "@holokai/holo-sdk/plugin": [
+        "../../packages/holo-sdk/src/plugin/index.ts"
+      ],
+      "@holokai/holo-sdk/provider": [
+        "../../packages/holo-sdk/src/provider/index.ts"
+      ],
+      "@holokai/holo-sdk/holo": [
+        "../../packages/holo-sdk/src/holo/index.ts"
+      ],
+      "@holokai/holo-sdk/notification": [
+        "../../packages/holo-sdk/src/notification/index.ts"
+      ],
+      "@holokai/holo-sdk/client": [
+        "../../packages/holo-sdk/src/client/index.ts"
+      ]
     }
   },
   "include": [

@@ -121,7 +121,9 @@ export class OllamaProvider extends BaseProvider<Ollama, EmbedRequest | Generate
         };
     }
 
-    private emitOllamaToolCalls(toolCalls: Array<{ function?: { name: string; arguments: any } }>, ctx: ProviderContext): void {
+    private emitOllamaToolCalls(toolCalls: Array<{
+        function?: { name: string; arguments: any }
+    }>, ctx: ProviderContext): void {
         for (let i = 0; i < toolCalls.length; i++) {
             const fn = toolCalls[i].function;
             if (!fn) continue;

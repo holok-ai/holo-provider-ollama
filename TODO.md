@@ -228,7 +228,8 @@ if (source.tool_choice) {
 **File**: `src/translators/streaming/ollama.stream.translator.ts`
 **Lines**: ~30-56 (`toHoloManyImpl`)
 
-**Issue**: Per [SDK Provider Mappings](../../packages/holo-sdk/docs/PROVIDER_MAPPINGS.md#streaming-mappings), orchestrator
+**Issue**: Per [SDK Provider Mappings](../../packages/holo-sdk/docs/PROVIDER_MAPPINGS.md#streaming-mappings),
+orchestrator
 must emit `message_start` on first frame. Ollama has no explicit start event.
 
 **Problem**: Orchestrator is currently stateless, cannot track "first frame".

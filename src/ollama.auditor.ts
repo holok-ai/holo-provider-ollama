@@ -14,12 +14,6 @@ import {OllamaProtocols} from "./plugin";
 export class OllamaAuditor extends BaseAuditor {
     readonly provider = 'ollama';
 
-    protected async extractRequestOptions(workerRequest: HoloWorkerRequest): Promise<Record<string, any>> {
-        return {
-            ...(workerRequest.payload as EmbedRequest | OllamaChatRequest | OllamaGenerateRequest).options
-        }
-    }
-
     override mapFinishReason(nativeResponse: any, _protocolName?: string): HoloFinishReason {
         if (!nativeResponse) return 'stop';
         const doneReason = nativeResponse.done_reason;
@@ -51,6 +45,12 @@ export class OllamaAuditor extends BaseAuditor {
             usage.timings = timings;
         }
         return usage;
+    }
+
+    protected async extractRequestOptions(workerRequest: HoloWorkerRequest): Promise<Record<string, any>> {
+        return {
+            ...(workerRequest.payload as EmbedRequest | OllamaChatRequest | OllamaGenerateRequest).options
+        }
     }
 
     protected async mapProviderResponseMetrics(providerEvent: ProviderDoneEvent) {
