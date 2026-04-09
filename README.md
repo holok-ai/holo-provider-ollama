@@ -518,25 +518,25 @@ The plugin translates Ollama frames to Holo streaming events:
 ### Streaming Example
 
 ```typescript
-import { HoloStreamChunk } from '@holokai/holo-sdk';
+import {HoloStreamChunk} from '@holokai/holo-sdk';
 
 const stream = await ollamaProvider.streamChat(request);
 
 for await (const chunk: HoloStreamChunk of stream) {
-  switch (chunk.delta?.type) {
-    case 'message_start':
-      console.log('Message started:', chunk.id);
-      break;
-    case 'content_delta':
-      process.stdout.write(chunk.delta.delta.content ?? '');
-      break;
-    case 'message_delta':
-      console.log('Usage:', chunk.usage);
-      break;
-    case 'message_stop':
-      console.log('Complete. Reason:', chunk.finish_reason);
-      break;
-  }
+    switch (chunk.delta?.type) {
+        case 'message_start':
+            console.log('Message started:', chunk.id);
+            break;
+        case 'content_delta':
+            process.stdout.write(chunk.delta.delta.content ?? '');
+            break;
+        case 'message_delta':
+            console.log('Usage:', chunk.usage);
+            break;
+        case 'message_stop':
+            console.log('Complete. Reason:', chunk.finish_reason);
+            break;
+    }
 }
 ```
 
