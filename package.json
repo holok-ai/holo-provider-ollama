@@ -1,6 +1,6 @@
 {
   "name": "@holokai/holo-provider-ollama",
-  "version": "1.4.5",
+  "version": "1.4.4",
   "type": "module",
   "description": "Ollama provider plugin for Holo LLM Gateway",
   "author": "Holokai",
@@ -65,8 +65,5 @@
     "@holokai/holo-test": "*",
     "@types/node": "^24.0.11",
     "typescript": "^5.8.3"
-  },
-  "holoPlugin": {
-    "type": "PROVIDER"
   }
 }

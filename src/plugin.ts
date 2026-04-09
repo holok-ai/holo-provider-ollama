@@ -5,7 +5,7 @@
  */
 
 import {BasePlugin} from '@holokai/holo-sdk/plugin';
-import type {IProviderPlugin, PluginContext, PluginPricingSheet} from '@holokai/holo-types/plugin';
+import type {IProviderPlugin, PluginContext, PluginPricingSheet, PluginSchema} from '@holokai/holo-types/plugin';
 import {manifest} from "./manifest.js";
 import type {IProvider, IWireAdapter, ProviderCapabilities, WireAdapterParams} from "@holokai/holo-types/provider";
 import {OllamaProvider} from "./ollama.provider";
@@ -48,6 +48,27 @@ export class OllamaProviderPlugin extends BasePlugin implements IProviderPlugin 
     getProtocolByCapability(capability: ProtocolCapability): string | undefined {
         const route = this.getRoutes().find(r => r.protocol.capability === capability);
         return route?.protocol.name;
+    }
+
+    getSchema(): PluginSchema {
+        return {
+            connection: {
+                type: 'object',
+                properties: {
+                    baseUrl: {type: 'string', title: 'Base URL', format: 'uri', default: 'http://localhost:11434'},
+                },
+                required: ['baseUrl'],
+            },
+            parameters: {
+                type: 'object',
+                properties: {
+                    temperature: {type: 'number', title: 'Temperature', minimum: 0, maximum: 2},
+                    num_predict: {type: 'integer', title: 'Max Tokens (num_predict)', minimum: 1},
+                    top_p: {type: 'number', title: 'Top P', minimum: 0, maximum: 1},
+                    top_k: {type: 'integer', title: 'Top K', minimum: 1},
+                },
+            },
+        };
     }
 
     getCapabilities(): ProviderCapabilities {
