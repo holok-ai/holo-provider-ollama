@@ -5,7 +5,7 @@
  * Exports the plugin instance as default export per Holo plugin contract.
  */
 
-import {OllamaProviderPlugin} from './plugin.js';
+import {OllamaProviderPlugin} from './plugin';
 
 export * from './translators';
 export * from './types';
